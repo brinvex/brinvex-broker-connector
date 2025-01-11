@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetSubCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.BuySell;
@@ -14,10 +14,10 @@ import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TradeConfirm;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrFinTransactionMapper;
 import com.brinvex.brokercon.adapter.ibkr.internal.builder.TradeBuilder;
 import com.brinvex.brokercon.core.api.domain.Asset;
-import com.brinvex.finance.types.enu.InstrumentType;
+import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction.FinTransactionBuilder;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.validation.Assert;
 
 import java.math.BigDecimal;
@@ -36,11 +36,11 @@ import java.util.stream.Collectors;
 
 import static com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransactionType.DEPOSITS_WITHDRAWALS;
 import static com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransactionType.WITHHOLDING_TAX;
-import static com.brinvex.finance.types.enu.PtfTransactionType.BUY;
-import static com.brinvex.finance.types.enu.PtfTransactionType.DEPOSIT;
-import static com.brinvex.finance.types.enu.PtfTransactionType.SELL;
-import static com.brinvex.finance.types.enu.PtfTransactionType.TRANSFORMATION;
-import static com.brinvex.finance.types.enu.PtfTransactionType.WITHDRAWAL;
+import static com.brinvex.fintypes.enu.FinTransactionType.BUY;
+import static com.brinvex.fintypes.enu.FinTransactionType.DEPOSIT;
+import static com.brinvex.fintypes.enu.FinTransactionType.SELL;
+import static com.brinvex.fintypes.enu.FinTransactionType.TRANSFORMATION;
+import static com.brinvex.fintypes.enu.FinTransactionType.WITHDRAWAL;
 import static com.brinvex.java.StringUtil.stripToNull;
 import static java.math.BigDecimal.ZERO;
 import static java.util.Comparator.comparing;
@@ -123,7 +123,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     };
 
                     yield FinTransaction.builder()
-                            .type(PtfTransactionType.DIVIDEND)
+                            .type(FinTransactionType.DIVIDEND)
                             .externalType(extraTranType)
                             .asset(Asset.builder()
                                     .type(toInstType(cashTran.assetCategory(), cashTran.assetSubCategory()))
@@ -142,7 +142,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                 case WITHHOLDING_TAX -> {
                     Assert.isTrue(cashTran.settleDate().isBefore(cashTran.reportDate()));
                     yield FinTransaction.builder()
-                            .type(PtfTransactionType.TAX)
+                            .type(FinTransactionType.TAX)
                             .externalType(WITHHOLDING_TAX.name())
                             .asset(Asset.builder()
                                     .type(toInstType(cashTran.assetCategory(), cashTran.assetSubCategory()))
@@ -166,7 +166,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     Assert.empty(cashTran.figi());
                     Assert.empty(cashTran.isin());
                     yield FinTransaction.builder()
-                            .type(PtfTransactionType.FEE)
+                            .type(FinTransactionType.FEE)
                             .externalType(cashTranType.name())
                             .grossValue(ZERO)
                             .qty(ZERO)
@@ -215,7 +215,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             Assert.zero(trade.taxes());
                             if (!ccy.equals(ibCommissionCcy)) {
                                 yield FinTransaction.builder()
-                                        .type(PtfTransactionType.FX_BUY)
+                                        .type(FinTransactionType.FX_BUY)
                                         .asset(Asset.builder()
                                                 .type(InstrumentType.CASH)
                                                 .symbol(buyCcy.name())
@@ -240,7 +240,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             Assert.zero(trade.taxes());
                             if (!Objects.equals(ccy, ibCommissionCcy)) {
                                 yield FinTransaction.builder()
-                                        .type(PtfTransactionType.FX_BUY)
+                                        .type(FinTransactionType.FX_BUY)
                                         .asset(Asset.builder()
                                                 .type(InstrumentType.CASH)
                                                 .symbol(buyCcy.name())
@@ -293,7 +293,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     Assert.equal(grossValue, trade.netCash());
                     Assert.zero(trade.taxes());
                     yield FinTransaction.builder()
-                            .type(PtfTransactionType.SELL)
+                            .type(FinTransactionType.SELL)
                             .asset(Asset.builder()
                                     .type(InstrumentType.STK)
                                     .country(detectCountryByExchange(trade.listingExchange()))

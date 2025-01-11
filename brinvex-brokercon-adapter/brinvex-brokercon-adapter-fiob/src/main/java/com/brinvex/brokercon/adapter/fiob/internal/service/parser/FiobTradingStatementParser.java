@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.fiob.internal.service.parser;
 
-import com.brinvex.finance.types.vo.Money;
+import com.brinvex.fintypes.vo.Money;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.Lang;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.Statement;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.TradingTransaction;

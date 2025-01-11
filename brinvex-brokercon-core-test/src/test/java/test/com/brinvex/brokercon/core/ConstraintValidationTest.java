@@ -1,9 +1,9 @@
 package test.com.brinvex.brokercon.core;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.facade.ValidatorFacade;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTransactionConstraints;
 import jakarta.validation.ConstraintViolation;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class ConstraintValidationTest extends CoreBaseTest {
     @Test
     void deposit() {
         FinTransaction.FinTransactionBuilder finTranBldr = FinTransaction.builder();
-        finTranBldr.type(PtfTransactionType.DEPOSIT);
+        finTranBldr.type(FinTransactionType.DEPOSIT);
 
         {
             FinTransaction finTran = finTranBldr.build();
@@ -61,7 +61,7 @@ public class ConstraintValidationTest extends CoreBaseTest {
         finTranBldr.grossValue(BigDecimal.TEN);
         finTranBldr.ccy(Currency.EUR);
         finTranBldr.fee(fee);
-        finTranBldr.type(PtfTransactionType.DEPOSIT);
+        finTranBldr.type(FinTransactionType.DEPOSIT);
         finTranBldr.qty(BigDecimal.ZERO);
         finTranBldr.settleDate(LocalDate.now());
         finTranBldr.tax(BigDecimal.ZERO);

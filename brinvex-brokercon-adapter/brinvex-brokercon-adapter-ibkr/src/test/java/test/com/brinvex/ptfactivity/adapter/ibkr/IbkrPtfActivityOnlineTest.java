@@ -1,7 +1,7 @@
 package test.com.brinvex.ptfactivity.adapter.ibkr;
 
 
-import com.brinvex.finance.types.enu.Country;
+import com.brinvex.fintypes.enu.Country;
 import com.brinvex.brokercon.adapter.ibkr.api.IbkrModule;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrPtfActivityProvider;
 import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTransactionConstraints;
@@ -15,10 +15,10 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.math.BigDecimal;
 
-import static com.brinvex.finance.types.enu.Currency.EUR;
-import static com.brinvex.finance.types.enu.Currency.USD;
-import static com.brinvex.finance.types.enu.Country.DE;
-import static com.brinvex.finance.types.enu.Country.US;
+import static com.brinvex.fintypes.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Currency.USD;
+import static com.brinvex.fintypes.enu.Country.DE;
+import static com.brinvex.fintypes.enu.Country.US;
 import static java.math.RoundingMode.HALF_UP;
 import static java.time.Duration.ofMinutes;
 import static java.time.LocalDate.now;

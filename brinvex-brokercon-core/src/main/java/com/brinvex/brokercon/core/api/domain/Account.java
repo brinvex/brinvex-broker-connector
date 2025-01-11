@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.core.api.domain;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;

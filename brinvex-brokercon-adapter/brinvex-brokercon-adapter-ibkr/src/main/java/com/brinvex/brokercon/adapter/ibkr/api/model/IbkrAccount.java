@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.api.model;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.Account;
 
 import java.time.LocalDate;

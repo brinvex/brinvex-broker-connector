@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.core.api.domain.constraints.fintransaction;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

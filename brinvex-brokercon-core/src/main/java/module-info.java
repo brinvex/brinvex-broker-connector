@@ -9,7 +9,7 @@ module com.brinvex.brokercon.core {
     exports com.brinvex.brokercon.core.api.general;
     requires com.brinvex.csv;
     requires com.brinvex.dms;
-    requires com.brinvex.finance.types;
+    requires com.brinvex.fintypes;
     requires com.brinvex.java;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires com.fasterxml.jackson.databind;

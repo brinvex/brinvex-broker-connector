@@ -2,7 +2,7 @@ package com.brinvex.brokercon.adapter.fiob.internal.service.mapper;
 
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.SavingTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.validation.Assert;
 
 import java.util.ArrayList;
@@ -31,12 +31,12 @@ public class FiobSavingTransactionMapper {
                 newTran.tax(ZERO);
                 newTran.settleDate(rawTran.date());
 
-                if (PtfTransactionType.INTEREST.equals(newTran.type()) && i < rawTransSize - 1) {
+                if (FinTransactionType.INTEREST.equals(newTran.type()) && i < rawTransSize - 1) {
                     SavingTransaction nextRawTran = rawTrans.get(i + 1);
                     if (rawTran.date().isEqual(nextRawTran.date())) {
                         String nextRawType = nextRawTran.type();
-                        PtfTransactionType nextTranType = detectTranType(nextRawTran);
-                        if (PtfTransactionType.TAX.equals(nextTranType) && "Odvod daně z úroků".equals(nextRawType)) {
+                        FinTransactionType nextTranType = detectTranType(nextRawTran);
+                        if (FinTransactionType.TAX.equals(nextTranType) && "Odvod daně z úroků".equals(nextRawType)) {
                             Assert.equal(newTran.ccy(), nextRawTran.ccy());
                             newTran.tax(nextRawTran.volume());
                             newTran.reconcileNetValue();
@@ -54,28 +54,28 @@ public class FiobSavingTransactionMapper {
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    private PtfTransactionType detectTranType(SavingTransaction tran) {
+    private FinTransactionType detectTranType(SavingTransaction tran) {
         String rawType = tran.type();
         if ("Bezhotovostní příjem".equals(rawType)) {
-            return PtfTransactionType.DEPOSIT;
+            return FinTransactionType.DEPOSIT;
         }
         if ("Příjem převodem uvnitř banky".equals(rawType)) {
-            return PtfTransactionType.DEPOSIT;
+            return FinTransactionType.DEPOSIT;
         }
         if ("Platba kartou".equals(rawType)) {
-            return PtfTransactionType.WITHDRAWAL;
+            return FinTransactionType.WITHDRAWAL;
         }
         if ("Bezhotovostní platba".equals(rawType)) {
-            return PtfTransactionType.WITHDRAWAL;
+            return FinTransactionType.WITHDRAWAL;
         }
         if ("Platba převodem uvnitř banky".equals(rawType)) {
-            return PtfTransactionType.WITHDRAWAL;
+            return FinTransactionType.WITHDRAWAL;
         }
         if ("Připsaný úrok".equals(rawType)) {
-            return PtfTransactionType.INTEREST;
+            return FinTransactionType.INTEREST;
         }
         if ("Odvod daně z úroků".equals(rawType)) {
-            return PtfTransactionType.TAX;
+            return FinTransactionType.TAX;
         }
         throw new IllegalArgumentException(String.valueOf(tran));
     }

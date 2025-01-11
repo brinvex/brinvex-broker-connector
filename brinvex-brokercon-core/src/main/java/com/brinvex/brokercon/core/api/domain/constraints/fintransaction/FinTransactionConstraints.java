@@ -1,9 +1,9 @@
 package com.brinvex.brokercon.core.api.domain.constraints.fintransaction;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.domain.constraints.asset.AssetConstraints;
 import com.brinvex.brokercon.core.api.general.Validatable;
 import jakarta.validation.Valid;
@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNullElse;
 public abstract class FinTransactionConstraints implements Validatable {
 
     public static FinTransactionConstraints of(FinTransaction finTransaction) {
-        PtfTransactionType type = finTransaction.type();
+        FinTransactionType type = finTransaction.type();
         return switch (type) {
             case DEPOSIT -> new DepositConstraints(finTransaction);
             case WITHDRAWAL -> new WithdrawalConstraints(finTransaction);
@@ -45,7 +45,7 @@ public abstract class FinTransactionConstraints implements Validatable {
     }
 
     @NotNull
-    public PtfTransactionType getType() {
+    public FinTransactionType getType() {
         return finTransaction.type();
     }
 

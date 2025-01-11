@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetSubCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.BuySell;

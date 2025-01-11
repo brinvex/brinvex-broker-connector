@@ -1,7 +1,7 @@
 package test.com.brinvex.brokercon.core;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.BrokerConnectRuntime;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.PtfActivityReq;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import java.math.BigDecimal;
 import java.util.Set;
 
-import static com.brinvex.finance.types.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Currency.EUR;
 import static java.math.BigDecimal.ZERO;
 import static java.time.LocalDate.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;

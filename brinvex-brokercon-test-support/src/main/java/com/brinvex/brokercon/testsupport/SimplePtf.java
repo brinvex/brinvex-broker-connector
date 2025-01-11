@@ -1,10 +1,10 @@
 package com.brinvex.brokercon.testsupport;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -146,7 +146,7 @@ public class SimplePtf {
                 throw new IllegalArgumentException("Transaction already applied: newTran=%s, duplTran=%s".formatted(tran, duplTran));
             }
 
-            PtfTransactionType tranType = tran.type();
+            FinTransactionType tranType = tran.type();
             Asset asset = tran.asset();
             Country country;
             String symbol;
@@ -166,7 +166,7 @@ public class SimplePtf {
             }
 
             if (qty.compareTo(ZERO) != 0) {
-                if (tranType.equals(PtfTransactionType.FX_BUY) || tranType.equals(PtfTransactionType.FX_SELL)) {
+                if (tranType.equals(FinTransactionType.FX_BUY) || tranType.equals(FinTransactionType.FX_SELL)) {
                     updateCash(Currency.valueOf(symbol), qty);
                 } else {
                     Holding holding = updateHolding(country, symbol, qty);

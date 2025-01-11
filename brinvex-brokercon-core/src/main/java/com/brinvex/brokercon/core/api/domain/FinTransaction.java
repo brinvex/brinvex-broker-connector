@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.core.api.domain;
 
-import com.brinvex.finance.types.enu.Currency;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.Currency;
+import com.brinvex.fintypes.enu.FinTransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ import static java.math.BigDecimal.ZERO;
 import static java.util.Objects.requireNonNullElse;
 
 public record FinTransaction(
-        PtfTransactionType type,
+        FinTransactionType type,
         LocalDate date,
         Currency ccy,
         BigDecimal netValue,
@@ -38,7 +38,7 @@ public record FinTransaction(
     }
 
     public static class FinTransactionBuilder {
-        private PtfTransactionType type;
+        private FinTransactionType type;
         private LocalDate date;
         private Currency ccy;
         private BigDecimal netValue;
@@ -87,11 +87,11 @@ public record FinTransaction(
             return this;
         }
 
-        public PtfTransactionType type() {
+        public FinTransactionType type() {
             return type;
         }
 
-        public FinTransactionBuilder type(PtfTransactionType type) {
+        public FinTransactionBuilder type(FinTransactionType type) {
             this.type = type;
             return this;
         }

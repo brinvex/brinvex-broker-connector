@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.amnd.internal.service;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.amnd.api.model.statement.Trade;
 import com.brinvex.brokercon.adapter.amnd.api.model.statement.TradeType;
 import com.brinvex.brokercon.adapter.amnd.api.model.statement.TransactionStatement;

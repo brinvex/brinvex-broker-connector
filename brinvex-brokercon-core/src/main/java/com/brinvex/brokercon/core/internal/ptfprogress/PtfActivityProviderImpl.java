@@ -1,14 +1,14 @@
 package com.brinvex.brokercon.core.internal.ptfprogress;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.Account;
 import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.PtfActivityReq;
-import com.brinvex.finance.types.enu.InstrumentType;
+import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction.FinTransactionBuilder;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.provider.PtfActivityProvider;
 import com.brinvex.dms.api.Dms;
 import com.brinvex.java.StringUtil;
@@ -67,7 +67,7 @@ public class PtfActivityProviderImpl implements PtfActivityProvider {
             }
             FinTransactionBuilder tranBuilder = FinTransaction.builder();
             tranBuilder.date(date);
-            tranBuilder.type(PtfTransactionType.valueOf(row.get("type")));
+            tranBuilder.type(FinTransactionType.valueOf(row.get("type")));
             tranBuilder.ccy(nullSafe(row.get("ccy"), StringUtil::stripToNull, Currency::valueOf));
             tranBuilder.netValue(nullSafe(row.get("netValue"), StringUtil::stripToNull, BigDecimal::new));
             tranBuilder.qty(nullSafe(row.get("qty"), StringUtil::stripToNull, BigDecimal::new));

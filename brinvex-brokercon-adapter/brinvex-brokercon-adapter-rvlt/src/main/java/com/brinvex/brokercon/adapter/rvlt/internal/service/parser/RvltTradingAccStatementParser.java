@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.rvlt.internal.service.parser;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.rvlt.api.model.statement.TradingAccountStatement;
 import com.brinvex.brokercon.adapter.rvlt.api.model.statement.Transaction;
 import com.brinvex.brokercon.adapter.rvlt.api.model.statement.TransactionSide;

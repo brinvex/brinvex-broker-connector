@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.core.api.domain.constraints.asset;
 
-import com.brinvex.finance.types.enu.Country;
+import com.brinvex.fintypes.enu.Country;
 import com.brinvex.brokercon.core.api.domain.Asset;
 import jakarta.validation.constraints.NotNull;
 

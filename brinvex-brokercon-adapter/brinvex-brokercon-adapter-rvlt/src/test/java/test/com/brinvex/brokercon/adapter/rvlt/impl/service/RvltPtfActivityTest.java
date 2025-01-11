@@ -1,8 +1,8 @@
 package test.com.brinvex.brokercon.adapter.rvlt.impl.service;
 
 
-import com.brinvex.finance.types.enu.PtfTransactionType;
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.rvlt.api.RvltModule;
 import com.brinvex.brokercon.adapter.rvlt.api.service.RvltPtfActivityProvider;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import static com.brinvex.finance.types.enu.Country.US;
+import static com.brinvex.fintypes.enu.Country.US;
 import static com.brinvex.java.collection.Collectors.toLinkedMap;
 import static java.math.BigDecimal.ZERO;
 import static java.time.LocalDate.parse;
@@ -55,7 +55,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
         {
             LocalDate tranDate1 = parse("2024-09-03");
             FinTransaction tran1 = ptfActivity.transactions().stream().filter(t -> t.date().isEqual(tranDate1)).findAny().orElseThrow();
-            assertEquals(PtfTransactionType.BUY, tran1.type());
+            assertEquals(FinTransactionType.BUY, tran1.type());
             assertEquals("AVGO", tran1.asset().symbol());
             assertEquals("0.3", tran1.qty().toPlainString());
             assertEquals("157.80", tran1.price().toPlainString());
@@ -72,7 +72,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
             assertEquals(2, multiDividTrans.size());
             {
                 FinTransaction multiDividTran1 = multiDividTrans.get(0);
-                assertEquals(PtfTransactionType.DIVIDEND, multiDividTran1.type());
+                assertEquals(FinTransactionType.DIVIDEND, multiDividTran1.type());
                 assertEquals(0, multiDividTran1.qty().compareTo(ZERO));
                 assertEquals("3.57", multiDividTran1.netValue().toPlainString());
                 assertEquals("4.20", multiDividTran1.grossValue().toPlainString());
@@ -81,7 +81,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
             }
             {
                 FinTransaction multiDividTran2 = multiDividTrans.get(1);
-                assertEquals(PtfTransactionType.DIVIDEND, multiDividTran2.type());
+                assertEquals(FinTransactionType.DIVIDEND, multiDividTran2.type());
                 assertEquals(0, multiDividTran2.qty().compareTo(ZERO));
                 assertEquals("12.18", multiDividTran2.netValue().toPlainString());
                 assertEquals("12.18", multiDividTran2.grossValue().toPlainString());
@@ -92,7 +92,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
         {
             LocalDate tranDate1 = parse("2024-09-06");
             FinTransaction tran1 = ptfActivity.transactions().stream().filter(t -> t.date().isEqual(tranDate1)).findAny().orElseThrow();
-            assertEquals(PtfTransactionType.DIVIDEND, tran1.type());
+            assertEquals(FinTransactionType.DIVIDEND, tran1.type());
             assertEquals("MCHP", tran1.asset().symbol());
             assertEquals(0, tran1.qty().compareTo(ZERO));
             assertEquals("19.10", tran1.netValue().toPlainString());

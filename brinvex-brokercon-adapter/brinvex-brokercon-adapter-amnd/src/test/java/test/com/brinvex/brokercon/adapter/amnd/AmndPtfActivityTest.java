@@ -1,6 +1,6 @@
 package test.com.brinvex.brokercon.adapter.amnd;
 
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.Num;
 import com.brinvex.brokercon.core.api.BrokerConnectRuntime;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SequencedCollection;
 
-import static com.brinvex.finance.types.enu.Country.DE;
-import static com.brinvex.finance.types.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Country.DE;
+import static com.brinvex.fintypes.enu.Currency.EUR;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_UP;
@@ -47,9 +47,9 @@ public class AmndPtfActivityTest extends AmndBaseTest {
             testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
 
             SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
-            assertEquals(PtfTransactionType.DEPOSIT, trans.get(0).type());
+            assertEquals(FinTransactionType.DEPOSIT, trans.get(0).type());
             assertEquals(0, trans.get(0).fee().compareTo(ZERO));
-            assertEquals(PtfTransactionType.BUY, trans.get(1).type());
+            assertEquals(FinTransactionType.BUY, trans.get(1).type());
             assertEquals(0, trans.get(1).fee().remainder(Num._100).compareTo(new BigDecimal("-70.00")));
 
             assertEquals(1, ptf.getHoldingsCount());
@@ -74,14 +74,14 @@ public class AmndPtfActivityTest extends AmndBaseTest {
 
             SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
 
-            assertEquals(PtfTransactionType.DEPOSIT, trans.get(0).type());
+            assertEquals(FinTransactionType.DEPOSIT, trans.get(0).type());
             assertEquals(0, trans.get(0).fee().compareTo(ZERO));
-            assertEquals(PtfTransactionType.BUY, trans.get(1).type());
+            assertEquals(FinTransactionType.BUY, trans.get(1).type());
             assertEquals(0, trans.get(1).fee().compareTo(new BigDecimal("-3.001795940000")));
 
-            assertEquals(PtfTransactionType.DEPOSIT, trans.get(2).type());
+            assertEquals(FinTransactionType.DEPOSIT, trans.get(2).type());
             assertEquals(0, trans.get(2).fee().compareTo(ZERO));
-            assertEquals(PtfTransactionType.BUY, trans.get(3).type());
+            assertEquals(FinTransactionType.BUY, trans.get(3).type());
             assertEquals(0, trans.get(3).fee().compareTo(new BigDecimal("-4.618147600000")));
 
             BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);

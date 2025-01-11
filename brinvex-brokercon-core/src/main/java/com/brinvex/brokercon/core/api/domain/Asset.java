@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.core.api.domain;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.InstrumentType;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.InstrumentType;
 
 public record Asset(
         InstrumentType type,

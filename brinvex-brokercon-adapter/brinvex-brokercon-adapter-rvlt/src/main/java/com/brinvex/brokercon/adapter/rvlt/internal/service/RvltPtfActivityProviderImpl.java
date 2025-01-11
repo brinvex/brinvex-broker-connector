@@ -5,7 +5,7 @@ import com.brinvex.brokercon.adapter.rvlt.api.service.RvltPtfActivityProvider;
 import com.brinvex.brokercon.adapter.rvlt.api.service.RvltFinTransactionMapper;
 import com.brinvex.brokercon.adapter.rvlt.api.service.RvltFinTransactionMerger;
 import com.brinvex.brokercon.adapter.rvlt.api.service.RvltStatementParser;
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.rvlt.api.model.RvltDocKey.PnlStatementDocKey;
 import com.brinvex.brokercon.adapter.rvlt.api.model.RvltDocKey.TradingAccountStatementDocKey;
 import com.brinvex.brokercon.adapter.rvlt.api.model.statement.PnlStatement;

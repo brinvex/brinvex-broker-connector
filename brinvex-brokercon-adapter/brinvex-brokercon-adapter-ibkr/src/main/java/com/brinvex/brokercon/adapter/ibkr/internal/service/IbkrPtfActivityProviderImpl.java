@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
-import com.brinvex.finance.types.enu.Currency;
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.enu.Currency;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrAccount;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrAccount.Credentials;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrDocKey.ActivityDocKey;

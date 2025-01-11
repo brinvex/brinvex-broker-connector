@@ -6,7 +6,7 @@ module com.brinvex.brokercon.adapter.ibkr {
     exports com.brinvex.brokercon.adapter.ibkr.api.model.statement;
     exports com.brinvex.brokercon.adapter.ibkr.api.service;
     requires transitive com.brinvex.brokercon.core;
-    requires transitive com.brinvex.finance.types;
+    requires transitive com.brinvex.fintypes;
     requires transitive com.brinvex.java;
     requires transitive com.brinvex.dms;
     requires java.net.http;

@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.core.api.domain;
 
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.vo.DateAmount;
 
 import java.util.List;
 import java.util.SequencedCollection;

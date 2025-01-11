@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.testsupport;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 
 import java.math.BigDecimal;
 import java.util.Map;

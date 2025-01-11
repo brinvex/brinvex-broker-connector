@@ -8,7 +8,7 @@ import com.brinvex.brokercon.adapter.amnd.api.service.AmndPtfActivityProvider;
 import com.brinvex.brokercon.adapter.amnd.api.service.AmndStatementParser;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.PtfActivityReq;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.domain.Account;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction.FinTransactionBuilder;
@@ -112,13 +112,13 @@ public class AmndPtfActivityProviderImpl implements AmndPtfActivityProvider {
 
                 FinTransactionBuilder firstDepositTran = finTranBuilders.get(0);
                 FinTransactionBuilder firstBuyTran = finTranBuilders.get(1);
-                Assert.isTrue(firstDepositTran.type() == PtfTransactionType.DEPOSIT);
-                Assert.isTrue(firstBuyTran.type() == PtfTransactionType.BUY);
+                Assert.isTrue(firstDepositTran.type() == FinTransactionType.DEPOSIT);
+                Assert.isTrue(firstBuyTran.type() == FinTransactionType.BUY);
 
                 BigDecimal ignorableFeeAbs = new BigDecimal("0.05");
                 List<FinTransactionBuilder> buyTrans = finTranBuilders
                         .stream()
-                        .filter(t -> t.type() == PtfTransactionType.BUY)
+                        .filter(t -> t.type() == FinTransactionType.BUY)
                         .toList();
                 List<FinTransactionBuilder> buyTransToAdjust = buyTrans
                         .stream()

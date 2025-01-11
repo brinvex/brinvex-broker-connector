@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.fiob.api.model.statement;
 
 
-import com.brinvex.finance.types.vo.Money;
+import com.brinvex.fintypes.vo.Money;
 
 import java.time.LocalDate;
 import java.util.List;

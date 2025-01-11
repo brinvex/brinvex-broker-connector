@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.fiob.internal.service.parser;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.SavingTransaction;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.Statement;
 import com.brinvex.java.validation.Assert;

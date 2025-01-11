@@ -1,7 +1,7 @@
 package test.com.brinvex.ptfactivity.adapter.ibkr;
 
 
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.ibkr.api.IbkrModule;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrDocKey.ActivityDocKey;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrDms;
@@ -9,7 +9,7 @@ import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrPtfActivityProvider;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.facade.ValidatorFacade;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTransactionConstraints;
 import com.brinvex.brokercon.testsupport.TestContext;
 import com.brinvex.brokercon.testsupport.SimplePtf;
@@ -21,9 +21,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-import static com.brinvex.finance.types.enu.Currency.EUR;
-import static com.brinvex.finance.types.enu.Currency.USD;
-import static com.brinvex.finance.types.enu.Country.US;
+import static com.brinvex.fintypes.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Currency.USD;
+import static com.brinvex.fintypes.enu.Country.US;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_UP;
 import static java.time.LocalDate.now;
@@ -78,10 +78,10 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
         assertEquals(0, ptf.getCash(USD).compareTo(new BigDecimal("153.48807417")));
 
         FinTransaction transformationTran = ptf.getTransactions().get(225);
-        assertEquals(PtfTransactionType.TRANSFORMATION, transformationTran.type());
+        assertEquals(FinTransactionType.TRANSFORMATION, transformationTran.type());
         assertEquals("GEV", transformationTran.asset().symbol());
         FinTransaction sellTran = ptf.getTransactions().get(226);
-        assertEquals(PtfTransactionType.SELL, sellTran.type());
+        assertEquals(FinTransactionType.SELL, sellTran.type());
         assertEquals("GEV", sellTran.asset().symbol());
     }
 
@@ -102,7 +102,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
 
             assertEquals(314, ptf.getTransactions().size());
             FinTransaction tran = ptf.getTransactions().get(310);
-            assertEquals(PtfTransactionType.DIVIDEND, tran.type());
+            assertEquals(FinTransactionType.DIVIDEND, tran.type());
             assertEquals("PAYMENT_IN_LIEU_OF_DIVIDENDS", tran.externalType());
             assertEquals("ARCC", tran.asset().symbol());
         }
@@ -114,7 +114,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
 
             assertEquals(326, ptf.getTransactions().size());
             FinTransaction tran = ptf.getTransactions().get(310);
-            assertEquals(tran.type(), PtfTransactionType.DIVIDEND);
+            assertEquals(tran.type(), FinTransactionType.DIVIDEND);
             assertEquals(tran.externalType(), "PAYMENT_IN_LIEU_OF_DIVIDENDS");
             assertEquals(tran.asset().symbol(), "ARCC");
         }
@@ -159,7 +159,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
                 assertEquals(actTrans1.size() + 2, actAndTcTrans.size());
 
                 FinTransaction newestTran = actAndTcTrans.getLast();
-                assertEquals(PtfTransactionType.BUY, newestTran.type());
+                assertEquals(FinTransactionType.BUY, newestTran.type());
                 assertEquals(parse("2024-04-18"), newestTran.date());
                 assertEquals("MU", newestTran.asset().symbol());
                 assertEquals(0, ptf.getHoldingQty(US, "MU").compareTo(new BigDecimal("6")));
@@ -180,7 +180,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
                 List<FinTransaction> actTrans2 = ptf.getTransactions();
                 assertTrue(actAndTcTrans.size() <= actTrans2.size());
 
-                Set<PtfTransactionType> tcTranTypes = Set.of(PtfTransactionType.BUY, PtfTransactionType.SELL, PtfTransactionType.FX_BUY, PtfTransactionType.FX_SELL);
+                Set<FinTransactionType> tcTranTypes = Set.of(FinTransactionType.BUY, FinTransactionType.SELL, FinTransactionType.FX_BUY, FinTransactionType.FX_SELL);
                 for (int i = 0, j = 0; j < actTrans2.size(); i++, j++) {
                     FinTransaction actAndTcTran = actAndTcTrans.get(i);
                     FinTransaction actTran2 = actTrans2.get(i);

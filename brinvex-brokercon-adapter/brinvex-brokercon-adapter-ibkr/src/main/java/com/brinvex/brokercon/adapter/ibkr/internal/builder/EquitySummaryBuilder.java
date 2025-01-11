@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.builder;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.EquitySummary;
 import com.brinvex.java.validation.Assert;
 

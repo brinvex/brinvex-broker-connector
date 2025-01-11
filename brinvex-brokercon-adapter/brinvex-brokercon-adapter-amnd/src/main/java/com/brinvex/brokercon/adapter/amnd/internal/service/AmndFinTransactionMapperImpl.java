@@ -5,9 +5,9 @@ import com.brinvex.brokercon.adapter.amnd.api.service.AmndFinTransactionMapper;
 import com.brinvex.brokercon.core.api.ModuleContext;
 import com.brinvex.brokercon.core.api.facade.JsonMapperFacade;
 import com.brinvex.brokercon.core.api.domain.Asset;
-import com.brinvex.finance.types.enu.InstrumentType;
+import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,7 +60,7 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
         return switch (trade.type()) {
             case BUY -> List.of(
                     FinTransaction.builder()
-                            .type(PtfTransactionType.DEPOSIT)
+                            .type(FinTransactionType.DEPOSIT)
                             .externalId(extraId + "/1/DEPOSIT")
                             .date(trade.orderDate())
                             .qty(BigDecimal.ZERO)
@@ -71,7 +71,7 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
                             .tax(BigDecimal.ZERO)
                             .settleDate(trade.settleDate()),
                     FinTransaction.builder()
-                            .type(PtfTransactionType.BUY)
+                            .type(FinTransactionType.BUY)
                             .externalId(extraId + "/2/BUY")
                             .date(trade.orderDate())
                             .asset(isinToAssetMapping.get(trade.isin()))
@@ -86,7 +86,7 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
             );
             case SELL -> List.of(
                     FinTransaction.builder()
-                            .type(PtfTransactionType.SELL)
+                            .type(FinTransactionType.SELL)
                             .externalId(extraId + "/3/SELL")
                             .date(trade.orderDate())
                             .asset(isinToAssetMapping.get(trade.isin()))
@@ -99,7 +99,7 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
                             .tax(BigDecimal.ZERO)
                             .settleDate(trade.settleDate()),
                     FinTransaction.builder()
-                            .type(PtfTransactionType.WITHDRAWAL)
+                            .type(FinTransactionType.WITHDRAWAL)
                             .externalId(extraId + "/4/WITHDRAWAL")
                             .date(trade.orderDate())
                             .qty(BigDecimal.ZERO)

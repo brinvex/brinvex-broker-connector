@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.fiob.internal.service.mapper;
 
-import com.brinvex.finance.types.enu.Country;
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.fiob.api.model.FiobTradingTransactionType;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.Lang;
 import com.brinvex.brokercon.adapter.fiob.api.model.statement.TradingTransaction;
@@ -10,8 +10,8 @@ import com.brinvex.brokercon.adapter.fiob.internal.service.parser.FiobParsingUti
 import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction.FinTransactionBuilder;
-import com.brinvex.finance.types.enu.InstrumentType;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.InstrumentType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.Num;
 import com.brinvex.java.validation.Assert;
 
@@ -881,32 +881,32 @@ public class FiobTradingTransactionMapper {
         }
 
         @SuppressWarnings("DuplicateBranchesInSwitch")
-        private static PtfTransactionType mapTranType(FiobTradingTransactionType fiobType) {
+        private static FinTransactionType mapTranType(FiobTradingTransactionType fiobType) {
             return switch (fiobType) {
-                case BUY -> PtfTransactionType.BUY;
-                case SELL -> PtfTransactionType.SELL;
-                case DEPOSIT -> PtfTransactionType.DEPOSIT;
-                case WITHDRAWAL -> PtfTransactionType.WITHDRAWAL;
-                case CASH_DIVIDEND -> PtfTransactionType.DIVIDEND;
-                case CAPITAL_DIVIDEND -> PtfTransactionType.DIVIDEND;
-                case DIVIDEND_REVERSAL -> PtfTransactionType.DIVIDEND;
-                case STOCK_DIVIDEND -> PtfTransactionType.DIVIDEND;
-                case INTEREST -> PtfTransactionType.INTEREST;
-                case FX_BUY -> PtfTransactionType.FX_BUY;
-                case FX_SELL -> PtfTransactionType.FX_SELL;
-                case FEE -> PtfTransactionType.FEE;
-                case TAX -> PtfTransactionType.TAX;
-                case TAX_REFUND -> PtfTransactionType.TAX;
-                case RECLAMATION -> PtfTransactionType.OTHER_INTERNAL_FLOW;
-                case MERGER_CHILD -> PtfTransactionType.TRANSFORMATION;
-                case MERGER_PARENT -> PtfTransactionType.TRANSFORMATION;
-                case LIQUIDATION -> PtfTransactionType.TRANSFORMATION;
-                case SPLIT -> PtfTransactionType.TRANSFORMATION;
-                case SPINOFF_VALUE -> PtfTransactionType.TRANSFORMATION;
-                case SPINOFF_CHILD -> PtfTransactionType.TRANSFORMATION;
-                case SPINOFF_PARENT -> PtfTransactionType.TRANSFORMATION;
-                case INSTRUMENT_CHANGE_PARENT -> PtfTransactionType.TRANSFORMATION;
-                case INSTRUMENT_CHANGE_CHILD -> PtfTransactionType.TRANSFORMATION;
+                case BUY -> FinTransactionType.BUY;
+                case SELL -> FinTransactionType.SELL;
+                case DEPOSIT -> FinTransactionType.DEPOSIT;
+                case WITHDRAWAL -> FinTransactionType.WITHDRAWAL;
+                case CASH_DIVIDEND -> FinTransactionType.DIVIDEND;
+                case CAPITAL_DIVIDEND -> FinTransactionType.DIVIDEND;
+                case DIVIDEND_REVERSAL -> FinTransactionType.DIVIDEND;
+                case STOCK_DIVIDEND -> FinTransactionType.DIVIDEND;
+                case INTEREST -> FinTransactionType.INTEREST;
+                case FX_BUY -> FinTransactionType.FX_BUY;
+                case FX_SELL -> FinTransactionType.FX_SELL;
+                case FEE -> FinTransactionType.FEE;
+                case TAX -> FinTransactionType.TAX;
+                case TAX_REFUND -> FinTransactionType.TAX;
+                case RECLAMATION -> FinTransactionType.OTHER_INTERNAL_FLOW;
+                case MERGER_CHILD -> FinTransactionType.TRANSFORMATION;
+                case MERGER_PARENT -> FinTransactionType.TRANSFORMATION;
+                case LIQUIDATION -> FinTransactionType.TRANSFORMATION;
+                case SPLIT -> FinTransactionType.TRANSFORMATION;
+                case SPINOFF_VALUE -> FinTransactionType.TRANSFORMATION;
+                case SPINOFF_CHILD -> FinTransactionType.TRANSFORMATION;
+                case SPINOFF_PARENT -> FinTransactionType.TRANSFORMATION;
+                case INSTRUMENT_CHANGE_PARENT -> FinTransactionType.TRANSFORMATION;
+                case INSTRUMENT_CHANGE_CHILD -> FinTransactionType.TRANSFORMATION;
             };
         }
 

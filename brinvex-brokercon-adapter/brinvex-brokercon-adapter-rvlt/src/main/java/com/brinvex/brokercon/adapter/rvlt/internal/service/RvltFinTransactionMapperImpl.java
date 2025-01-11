@@ -4,9 +4,9 @@ import com.brinvex.brokercon.adapter.rvlt.api.model.statement.Transaction;
 import com.brinvex.brokercon.adapter.rvlt.api.model.statement.TransactionType;
 import com.brinvex.brokercon.adapter.rvlt.api.service.RvltFinTransactionMapper;
 import com.brinvex.brokercon.core.api.domain.Asset;
-import com.brinvex.finance.types.enu.InstrumentType;
+import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.Num;
 import com.brinvex.java.validation.Assert;
 
@@ -36,7 +36,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(Num.isNullOrZero(rvltTran.commission()));
                 Assert.isTrue(Num.isNullOrZero(rvltTran.withholdingTax()));
                 FinTransaction tran = tranBuilder
-                        .type(PtfTransactionType.DEPOSIT)
+                        .type(FinTransactionType.DEPOSIT)
                         .grossValue(rvltTran.value())
                         .netValue(rvltTran.value())
                         .qty(ZERO)
@@ -51,7 +51,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(Num.isNullOrZero(rvltTran.commission()));
                 Assert.isTrue(Num.isNullOrZero(rvltTran.withholdingTax()));
                 FinTransaction tran = tranBuilder
-                        .type(PtfTransactionType.WITHDRAWAL)
+                        .type(FinTransactionType.WITHDRAWAL)
                         .grossValue(rvltTran.value())
                         .netValue(rvltTran.value())
                         .qty(ZERO)
@@ -66,7 +66,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(Num.isNullOrZero(rvltTran.commission()));
                 Assert.isTrue(Num.isNullOrZero(rvltTran.withholdingTax()));
                 FinTransaction tran = tranBuilder
-                        .type(PtfTransactionType.FEE)
+                        .type(FinTransactionType.FEE)
                         .grossValue(ZERO)
                         .netValue(rvltTran.value())
                         .fee(rvltTran.value())
@@ -77,7 +77,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
             } else if (rvltTranType == TransactionType.DIVIDEND) {
                 Assert.isTrue(Num.isPositive(rvltTran.value()));
                 FinTransaction tran = tranBuilder
-                        .type(PtfTransactionType.DIVIDEND)
+                        .type(FinTransactionType.DIVIDEND)
                         .qty(ZERO)
                         .build();
                 resultTrans.add(tran);
@@ -89,14 +89,14 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(Num.isNonPositive(fee));
                 FinTransaction tran = switch (rvltTran.side()) {
                     case BUY -> tranBuilder
-                            .type(PtfTransactionType.BUY)
+                            .type(FinTransactionType.BUY)
                             .grossValue(rvltTran.value().negate().subtract(fee))
                             .netValue(rvltTran.value().negate())
                             .tax(ZERO)
                             .fee(fee)
                             .build();
                     case SELL -> tranBuilder
-                            .type(PtfTransactionType.SELL)
+                            .type(FinTransactionType.SELL)
                             .qty(rvltTran.qty().negate())
                             .grossValue(rvltTran.value().subtract(fee))
                             .netValue(rvltTran.value())
@@ -111,7 +111,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(Num.isNullOrZero(rvltTran.commission()));
                 Assert.isTrue(Num.isNullOrZero(rvltTran.withholdingTax()));
                 FinTransaction tran = tranBuilder
-                        .type(PtfTransactionType.TRANSFORMATION)
+                        .type(FinTransactionType.TRANSFORMATION)
                         .grossValue(ZERO)
                         .netValue(ZERO)
                         .fee(rvltTran.value())
@@ -137,7 +137,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                     Assert.isTrue(next1RevtTran.symbol().equals(rvltTran.symbol()));
                     Assert.isTrue(next1RevtTran.qty().equals(rvltTran.qty()));
                     FinTransaction parentTran = tranBuilder
-                            .type(PtfTransactionType.TRANSFORMATION)
+                            .type(FinTransactionType.TRANSFORMATION)
                             .externalId(parentTranExtraId)
                             .grossValue(ZERO)
                             .netValue(ZERO)
@@ -153,7 +153,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(rvltTran.qty().compareTo(ZERO) > 0);
 
                 FinTransaction childTran = tranBuilder
-                        .type(PtfTransactionType.TRANSFORMATION)
+                        .type(FinTransactionType.TRANSFORMATION)
                         .externalId(childTranExtraId)
                         .grossValue(ZERO)
                         .netValue(ZERO)
@@ -187,7 +187,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 Assert.isTrue(next1RevtTran.qty().compareTo(ZERO) < 0);
 
                 FinTransaction parentTran = prepareTransaction(next1RevtTran)
-                        .type(PtfTransactionType.TRANSFORMATION)
+                        .type(FinTransactionType.TRANSFORMATION)
                         .externalId(parentTranExtraId)
                         .groupId(tranGroupId)
                         .externalType(TransactionType.MERGER + "/PARENT")
@@ -198,7 +198,7 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                 i = i + 1;
 
                 FinTransaction childTran = tranBuilder
-                        .type(PtfTransactionType.TRANSFORMATION)
+                        .type(FinTransactionType.TRANSFORMATION)
                         .externalId(childTranExtraId)
                         .groupId(tranGroupId)
                         .externalType(TransactionType.MERGER + "/CHILD")

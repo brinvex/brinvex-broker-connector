@@ -18,8 +18,8 @@ import java.time.LocalDate;
 import java.util.SequencedCollection;
 import java.util.Set;
 
-import static com.brinvex.finance.types.enu.Currency.CZK;
-import static com.brinvex.finance.types.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Currency.CZK;
+import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.brokercon.testsupport.AssertionUtil.assertPtfSnapshotEqual;
 import static java.time.Duration.ofMinutes;
 import static java.time.LocalDate.parse;

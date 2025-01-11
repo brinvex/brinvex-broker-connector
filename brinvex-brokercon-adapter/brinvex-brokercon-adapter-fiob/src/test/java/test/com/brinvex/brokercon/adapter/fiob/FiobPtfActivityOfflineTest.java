@@ -1,7 +1,7 @@
 package test.com.brinvex.brokercon.adapter.fiob;
 
 
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.fiob.api.FiobModule;
 import com.brinvex.brokercon.adapter.fiob.api.service.FiobPtfActivityProvider;
 import com.brinvex.brokercon.core.api.BrokerConnectRuntime;
@@ -10,7 +10,7 @@ import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.PtfActivityReq;
 import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTransactionConstraints;
-import com.brinvex.finance.types.enu.PtfTransactionType;
+import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.brokercon.core.api.facade.ValidatorFacade;
 import com.brinvex.brokercon.testsupport.ObfuscationUtil;
 import com.brinvex.brokercon.testsupport.SimplePtf;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.SequencedCollection;
 import java.util.Set;
 
-import static com.brinvex.finance.types.enu.Currency.EUR;
+import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.brokercon.testsupport.AssertionUtil.assertPtfSnapshotEqual;
 import static java.math.BigDecimal.ZERO;
 import static java.time.LocalDate.parse;
@@ -185,14 +185,14 @@ class FiobPtfActivityOfflineTest extends FiobBaseTest {
         for (FinTransaction t : ptfActivity.transactions()) {
             validator.validate(FinTransactionConstraints.of(t));
 
-            PtfTransactionType type = t.type();
+            FinTransactionType type = t.type();
             Asset asset = t.asset();
-            if (type.equals(PtfTransactionType.FEE)) {
+            if (type.equals(FinTransactionType.FEE)) {
                 if (t.externalDetail().contains("ADR")) {
                     assertNotNull(asset.symbol());
                     assertNotNull(asset.country());
                 }
-            } else if (type.equals(PtfTransactionType.DIVIDEND)) {
+            } else if (type.equals(FinTransactionType.DIVIDEND)) {
                 if (t.externalDetail().contains(" daň ")) {
                     assertTrue(t.tax().compareTo(ZERO) < 0);
                 }

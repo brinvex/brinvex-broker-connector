@@ -1,7 +1,7 @@
 package com.brinvex.brokercon.adapter.fiob.internal.service;
 
-import com.brinvex.finance.types.enu.Currency;
-import com.brinvex.finance.types.vo.DateAmount;
+import com.brinvex.fintypes.enu.Currency;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.fiob.api.model.FiobAccountType;
 import com.brinvex.brokercon.adapter.fiob.api.model.FiobDocKey;
 import com.brinvex.brokercon.adapter.fiob.api.model.FiobDocKey.SavingTransDocKey;
@@ -35,8 +35,8 @@ import java.util.Set;
 
 import static com.brinvex.brokercon.adapter.fiob.api.model.FiobAccountType.SAVING;
 import static com.brinvex.brokercon.adapter.fiob.api.model.FiobAccountType.TRADING;
-import static com.brinvex.finance.types.enu.PtfTransactionType.DEPOSIT;
-import static com.brinvex.finance.types.enu.PtfTransactionType.WITHDRAWAL;
+import static com.brinvex.fintypes.enu.FinTransactionType.DEPOSIT;
+import static com.brinvex.fintypes.enu.FinTransactionType.WITHDRAWAL;
 import static com.brinvex.java.collection.CollectionUtil.getFirstThrowIfMore;
 import static com.brinvex.java.DateUtil.isLastDayOfMonth;
 import static com.brinvex.java.DateUtil.minDate;

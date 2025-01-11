@@ -39,7 +39,7 @@
         <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 
-        <brinvex-finance-types.version>1.0.18</brinvex-finance-types.version>
+        <brinvex-fintypes.version>1.0.1</brinvex-fintypes.version>
         <brinvex-dms.version>1.0.0</brinvex-dms.version>
         <brinvex-java.version>1.0.1</brinvex-java.version>
         <brinvex-csv.version>1.0.1</brinvex-csv.version>
@@ -85,8 +85,8 @@
         <dependencies>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-finance-types</artifactId>
-                <version>${brinvex-finance-types.version}</version>
+                <artifactId>brinvex-fintypes</artifactId>
+                <version>${brinvex-fintypes.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>

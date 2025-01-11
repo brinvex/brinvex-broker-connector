@@ -1,6 +1,6 @@
 package com.brinvex.brokercon.adapter.amnd.api.model.statement;
 
-import com.brinvex.finance.types.enu.Currency;
+import com.brinvex.fintypes.enu.Currency;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
