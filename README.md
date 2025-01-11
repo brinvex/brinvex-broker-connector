@@ -17,7 +17,7 @@ For example, if you need integration with IBKR,
 import the ``brinvex-brokercon-adapter-ibkr`` dependencies.
 
     <properties>
-         <brinvex-brokercon.version>1.0.4</brinvex-brokercon.version>
+         <brinvex-brokercon.version>1.0.0</brinvex-brokercon.version>
     </properties>
     
     <repository>
