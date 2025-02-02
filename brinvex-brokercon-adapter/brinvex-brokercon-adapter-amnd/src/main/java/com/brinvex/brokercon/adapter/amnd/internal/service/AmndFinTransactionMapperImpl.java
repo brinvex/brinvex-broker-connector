@@ -8,9 +8,11 @@ import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.java.DateUtil;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -84,32 +86,35 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
                             .tax(BigDecimal.ZERO)
                             .settleDate(trade.settleDate())
             );
-            case SELL -> List.of(
-                    FinTransaction.builder()
-                            .type(FinTransactionType.SELL)
-                            .externalId(extraId + "/3/SELL")
-                            .date(trade.orderDate())
-                            .asset(isinToAssetMapping.get(trade.isin()))
-                            .qty(qty)
-                            .price(trade.price())
-                            .ccy(trade.ccy())
-                            .grossValue(grossValue)
-                            .netValue(netValue)
-                            .fee(fees)
-                            .tax(BigDecimal.ZERO)
-                            .settleDate(trade.settleDate()),
-                    FinTransaction.builder()
-                            .type(FinTransactionType.WITHDRAWAL)
-                            .externalId(extraId + "/4/WITHDRAWAL")
-                            .date(trade.orderDate())
-                            .qty(BigDecimal.ZERO)
-                            .ccy(trade.ccy())
-                            .grossValue(netValue.negate())
-                            .netValue(netValue.negate())
-                            .fee(BigDecimal.ZERO)
-                            .tax(BigDecimal.ZERO)
-                            .settleDate(trade.settleDate())
-            );
+            case SELL -> {
+                LocalDate withdrawalDate = DateUtil.plusWorkDays(trade.orderDate(), 5);
+                yield List.of(
+                        FinTransaction.builder()
+                                .type(FinTransactionType.SELL)
+                                .externalId(extraId + "/3/SELL")
+                                .date(trade.orderDate())
+                                .asset(isinToAssetMapping.get(trade.isin()))
+                                .qty(qty)
+                                .price(trade.price())
+                                .ccy(trade.ccy())
+                                .grossValue(grossValue)
+                                .netValue(netValue)
+                                .fee(fees)
+                                .tax(BigDecimal.ZERO)
+                                .settleDate(trade.settleDate()),
+                        FinTransaction.builder()
+                                .type(FinTransactionType.WITHDRAWAL)
+                                .externalId(extraId + "/4/WITHDRAWAL")
+                                .date(withdrawalDate)
+                                .qty(BigDecimal.ZERO)
+                                .ccy(trade.ccy())
+                                .grossValue(netValue.negate())
+                                .netValue(netValue.negate())
+                                .fee(BigDecimal.ZERO)
+                                .tax(BigDecimal.ZERO)
+                                .settleDate(withdrawalDate)
+                );
+            }
         };
     }
 
