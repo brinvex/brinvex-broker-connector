@@ -105,9 +105,9 @@ class RvltPtfActivityTest extends RvltBaseTest {
     @EnabledIf("account1IsNotNull")
     @Test
     void ptfProgress2() {
-        TestContext brokercon = testCtx.withDmsWorkspace("rvlt-dms-stable-20240930");
-        RvltModule rvltModule = brokercon.get(RvltModule.class);
-        ValidatorFacade validator = brokercon.validator();
+        TestContext testCtx = this.testCtx.withDmsWorkspace("rvlt-dms-stable-20250202");
+        RvltModule rvltModule = testCtx.get(RvltModule.class);
+        ValidatorFacade validator = testCtx.validator();
         RvltPtfActivityProvider rvltPtfProgressProvider = rvltModule.ptfProgressProvider();
         PtfActivity ptfActivity = rvltPtfProgressProvider.getPtfProgress(account1, parse("2024-10-01"), parse("2024-10-28"));
         validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
@@ -119,7 +119,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
     @EnabledIf("account1IsNotNull")
     @Test
     void ptfProgress3() {
-        TestContext testCtx = this.testCtx.withDmsWorkspace("rvlt-dms-stable-20240930");
+        TestContext testCtx = this.testCtx.withDmsWorkspace("rvlt-dms-stable-20250202");
         RvltModule rvltModule = testCtx.get(RvltModule.class);
         ValidatorFacade validator = testCtx.validator();
         RvltPtfActivityProvider rvltPtfProgressProvider = rvltModule.ptfProgressProvider();
@@ -133,7 +133,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
     @EnabledIf("account1IsNotNull")
     @Test
     void ptfProgress4() {
-        TestContext testCtx = this.testCtx.withDmsWorkspace("rvlt-dms-stable-20240930");
+        TestContext testCtx = this.testCtx.withDmsWorkspace("rvlt-dms-stable-20250202");
         RvltModule rvltModule = testCtx.get(RvltModule.class);
         ValidatorFacade validator = testCtx.validator();
         RvltPtfActivityProvider rvltPtfProgressProvider = rvltModule.ptfProgressProvider();

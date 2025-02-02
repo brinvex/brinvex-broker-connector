@@ -34,7 +34,7 @@ class RvltPnlStatementParser {
                 "Period\\s+(?<periodFrom>\\d{2}\\s[A-Za-z]{3}\\s\\d{4})\\s-\\s(?<periodTo>\\d{2}\\s[A-Za-z]{3}\\s\\d{4})");
 
         private static final Pattern TRANSACTION_HEADER_PATTERN = Pattern.compile(
-                "Date\\s+Symbol\\s+Security\\s+name\\s+ISIN\\s+Country\\s+Gross\\s+Amount\\s+Withholding\\s+Tax\\s+Net\\s+Amount");
+                "Date\\s+Description\\s+Security\\s+name\\s+ISIN\\s+Country\\s+Gross\\s+Amount\\s+Withholding\\s+Tax\\s+Net\\s+Amount");
 
         private static final Pattern TRANSACTION_FOOTER_PATTERN = Pattern.compile(
                 "Total\\s+.*");
