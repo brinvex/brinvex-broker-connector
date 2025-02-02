@@ -19,7 +19,7 @@
 
     <groupId>com.brinvex</groupId>
     <artifactId>brinvex-brokercon</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <description>
@@ -47,7 +47,7 @@
         <pdfbox.version>3.0.3</pdfbox.version>
 
         <github-site-maven-plugin.version>0.11</github-site-maven-plugin.version>
-        <github.global.server>github</github.global.server>
+        <github.global.server>github-pubrepo-brinvex</github.global.server>
     </properties>
 
     <url>https://github.com/brinvex/brinvex-brokercon</url>
@@ -221,7 +221,7 @@
                                 <include>**/*</include>
                             </includes>
                             <!-- GitHub repo name -->
-                            <repositoryName>brinvex-repo</repositoryName>
+                            <repositoryName>brinvex-pubrepo</repositoryName>
                             <!-- GitHub username  -->
                             <repositoryOwner>brinvex</repositoryOwner>
                             <merge>true</merge>
@@ -255,9 +255,9 @@
             </snapshots>
         </repository>
         <repository>
-            <id>brinvex-repo</id>
-            <name>Brinvex Repository</name>
-            <url>https://github.com/brinvex/brinvex-repo/raw/main/</url>
+            <id>github-pubrepo-brinvex</id>
+            <name>Github Public Repository - Brinvex</name>
+            <url>https://github.com/brinvex/brinvex-pubrepo/raw/main/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>

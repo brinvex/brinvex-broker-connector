@@ -17,13 +17,13 @@ For example, if you need integration with IBKR,
 import the ``brinvex-brokercon-adapter-ibkr`` dependencies.
 
     <properties>
-         <brinvex-brokercon.version>1.0.3</brinvex-brokercon.version>
+         <brinvex-brokercon.version>1.0.4</brinvex-brokercon.version>
     </properties>
     
     <repository>
-        <id>repository.brinvex</id>
-        <name>Brinvex Repository</name>
-        <url>https://github.com/brinvex/brinvex-repo/raw/main/</url>
+        <id>github-pubrepo-brinvex</id>
+        <name>Github Public Repository - Brinvex</name>
+        <url>https://github.com/brinvex/brinvex-pubrepo/raw/main/</url>
         <snapshots>
             <enabled>false</enabled>
         </snapshots>
