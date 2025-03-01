@@ -84,20 +84,21 @@ class RvltTradingAccStatementParser {
     public TradingAccountStatement parseAccountStatement(List<String> lines) {
         int r = 0;
         int linesSize = lines.size();
+
+        boolean header1Found = false;
         {
-            boolean eurMainHeaderFonud = false;
             for (; r < linesSize; r++) {
                 String line = stripToEmpty(lines.get(r));
                 if (line.equals("Account Statement")) {
-                    eurMainHeaderFonud = true;
+                    header1Found = true;
                     r++;
                     break;
                 }
             }
-            Assert.isTrue(eurMainHeaderFonud);
+            Assert.isTrue(header1Found);
         }
+        boolean eurSummaryFound = false;
         {
-            boolean eurSummaryFound = false;
             for (; r < linesSize; r++) {
                 String line = stripToEmpty(lines.get(r));
                 if (line.equals("EUR Account summary")) {
@@ -106,43 +107,46 @@ class RvltTradingAccStatementParser {
                     break;
                 }
             }
-            Assert.isTrue(eurSummaryFound);
         }
-        {
-            boolean eurBreakdownFound = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("EUR Portfolio breakdown")) {
-                    eurBreakdownFound = true;
-                    r++;
-                    break;
+        if (eurSummaryFound) {
+            {
+                boolean eurBreakdownFound = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("EUR Portfolio breakdown")) {
+                        eurBreakdownFound = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(eurBreakdownFound);
             }
-            Assert.isTrue(eurBreakdownFound);
-        }
-        {
-            boolean eurTransactionsFound = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("EUR Transactions")) {
-                    eurTransactionsFound = true;
-                    r++;
-                    break;
+            {
+                boolean eurTransactionsFound = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("EUR Transactions")) {
+                        eurTransactionsFound = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(eurTransactionsFound);
             }
-            Assert.isTrue(eurTransactionsFound);
-        }
-        {
-            boolean usdMainHeaderFonud = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("Account Statement")) {
-                    usdMainHeaderFonud = true;
-                    r++;
-                    break;
+            {
+                boolean header2Found = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("Account Statement")) {
+                        header2Found = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(header2Found);
             }
-            Assert.isTrue(usdMainHeaderFonud);
+        } else {
+            r = 0;
         }
 
         LocalDate periodFrom = null;

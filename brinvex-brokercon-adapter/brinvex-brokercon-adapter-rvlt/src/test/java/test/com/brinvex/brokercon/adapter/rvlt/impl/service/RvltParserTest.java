@@ -56,8 +56,8 @@ public class RvltParserTest extends RvltBaseTest {
                 assertEquals(accountName, accStatement.accountName());
             }
 
-            assertEquals(accStatement.startCashValue().add(accStatement.startStocksValue()).compareTo(accStatement.startValue()), 0);
-            assertEquals(accStatement.endCashValue().add(accStatement.endStocksValue()).compareTo(accStatement.endValue()), 0);
+            assertEquals(0, accStatement.startCashValue().add(accStatement.startStocksValue()).compareTo(accStatement.startValue()));
+            assertEquals(0, accStatement.endCashValue().add(accStatement.endStocksValue()).compareTo(accStatement.endValue()));
 
             assertFalse(accStatement.transactions().isEmpty());
             for (Transaction transaction : accStatement.transactions()) {
