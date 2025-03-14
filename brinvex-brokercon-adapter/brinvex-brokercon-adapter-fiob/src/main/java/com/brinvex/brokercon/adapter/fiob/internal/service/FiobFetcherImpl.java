@@ -46,7 +46,7 @@ public class FiobFetcherImpl implements FiobFetcher {
                     boolean isFail = content.isBlank();
                     if (!isFail) {
                         if (content.startsWith("Data není možné poskytnout bez silné autorizace.")) {
-                            //Use https://www.fio.cz/ib_api/rest/periods/!!!API_KEY!!!/2024-10-01/2024-11-15/transactions.xml
+                            //Use https://fioapi.fio.cz/v1/rest/periods/!!!API_KEY!!!/2024-10-01/2024-11-15/transactions.xml
                             throw new AssistanceRequiredException((
                                     "Option 1: Internet Banking -> Settings -> API -> Tokens -> Temporary disclosure of complete data accessible by API token; " +
                                     "Option 2: Manually retrieve the missed statements and upload them to DMS; " +
@@ -88,7 +88,7 @@ public class FiobFetcherImpl implements FiobFetcher {
     }
 
     private static class Lazy {
-        private static final String FIOB_BANK_API_URL_FMT = "https://www.fio.cz/ib_api/rest/periods/%s/%s/%s/transactions.xml";
+        private static final String FIOB_BANK_API_URL_FMT = "https://fioapi.fio.cz/v1/rest/periods/%s/%s/%s/transactions.xml";
     }
 
 }
