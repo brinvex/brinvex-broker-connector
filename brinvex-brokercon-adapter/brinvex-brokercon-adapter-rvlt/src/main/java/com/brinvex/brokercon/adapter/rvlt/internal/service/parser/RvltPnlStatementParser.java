@@ -76,53 +76,44 @@ class RvltPnlStatementParser {
     public PnlStatement parseAccountStatement(List<String> lines) {
         int r = 0;
         int linesSize = lines.size();
-        {
-            boolean eurHeader1Found = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("EUR Profit and Loss Statement")) {
-                    eurHeader1Found = true;
-                    r++;
-                    break;
+        if (lines.get(1).equals("EUR Profit and Loss Statement")) {
+            r = 2;
+            {
+                boolean eurSellsFound = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("Sells")) {
+                        eurSellsFound = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(eurSellsFound);
             }
-            Assert.isTrue(eurHeader1Found);
-        }
-        {
-            boolean eurSellsFound = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("Sells")) {
-                    eurSellsFound = true;
-                    r++;
-                    break;
+            {
+                boolean eurHeader2Found = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("EUR Profit and Loss Statement")) {
+                        eurHeader2Found = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(eurHeader2Found);
             }
-            Assert.isTrue(eurSellsFound);
-        }
-        {
-            boolean eurHeader2Found = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("EUR Profit and Loss Statement")) {
-                    eurHeader2Found = true;
-                    r++;
-                    break;
+            {
+                boolean eurIncomesFound = false;
+                for (; r < linesSize; r++) {
+                    String line = stripToEmpty(lines.get(r));
+                    if (line.equals("Other income & fees")) {
+                        eurIncomesFound = true;
+                        r++;
+                        break;
+                    }
                 }
+                Assert.isTrue(eurIncomesFound);
             }
-            Assert.isTrue(eurHeader2Found);
-        }
-        {
-            boolean eurIncomesFound = false;
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("Other income & fees")) {
-                    eurIncomesFound = true;
-                    r++;
-                    break;
-                }
-            }
-            Assert.isTrue(eurIncomesFound);
         }
         {
             boolean usdHeader1Found = false;
