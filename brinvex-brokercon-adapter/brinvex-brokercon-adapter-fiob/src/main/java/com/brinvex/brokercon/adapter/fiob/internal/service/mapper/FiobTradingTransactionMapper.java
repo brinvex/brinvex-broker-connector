@@ -788,10 +788,12 @@ public class FiobTradingTransactionMapper {
             if (lang.equals(Lang.SK) && market.equals("Transformácia")) {
                 isTransformation = true;
             }
+            //todo 1 - Use textUp for all String conditions
+            String textUp = text == null ? null : text.toUpperCase();
             if (isTransformation) {
-                if (text.contains("Ticker Change: ")
-                    || text.contains("Change of Listing: ")
-                    || text.contains("Change in Security ID (ISIN Change)")
+                if (textUp.contains("TICKER CHANGE: ")
+                    || textUp.contains("CHANGE OF LISTING: ")
+                    || textUp.contains("CHANGE IN SECURITY ID (ISIN CHANGE)")
                 ) {
                     if (TradingTransactionDirection.SELL.equals(direction)) {
                         return FiobTradingTransactionType.INSTRUMENT_CHANGE_PARENT;

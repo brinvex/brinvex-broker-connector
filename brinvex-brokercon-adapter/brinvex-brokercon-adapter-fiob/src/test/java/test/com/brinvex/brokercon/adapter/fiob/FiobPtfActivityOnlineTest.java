@@ -10,10 +10,12 @@ import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTrans
 import com.brinvex.brokercon.testsupport.ObfuscationUtil;
 import com.brinvex.brokercon.testsupport.SimplePtf;
 import com.brinvex.brokercon.testsupport.TestContext;
+import com.brinvex.fintypes.enu.Country;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.SequencedCollection;
 import java.util.Set;
@@ -21,6 +23,7 @@ import java.util.Set;
 import static com.brinvex.fintypes.enu.Currency.CZK;
 import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.brokercon.testsupport.AssertionUtil.assertPtfSnapshotEqual;
+import static java.math.BigDecimal.ZERO;
 import static java.time.Duration.ofMinutes;
 import static java.time.LocalDate.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,6 +57,33 @@ class FiobPtfActivityOnlineTest extends FiobBaseTest {
 
             SimplePtf ptf = new SimplePtf(trans);
             assertPtfSnapshotEqual(expectedPtf, ptf);
+        }
+    }
+
+    @EnabledIf("account1CredentialsIsNotNull")
+    @EnabledIfSystemProperty(named = "enableConfidentialTests", matches = "true")
+    @Test
+    void ptfProgressOnline_account1_2() {
+        assert account1 != null;
+
+        String dmsWorkspace = "fiob-dms-online1";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(dmsWorkspace);
+        FiobModule fiobModule = testCtx.get(FiobModule.class);
+        FiobPtfActivityProvider ptfProgressProvider = fiobModule.ptfProgressProvider();
+        ValidatorFacade validator = testCtx.validator();
+
+        {
+            LocalDate fromDateIncl = parse("2019-01-05");
+            LocalDate toDateIncl = parse("2025-05-16");
+
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgress(account1, fromDateIncl, toDateIncl, ofMinutes(15));
+
+            SequencedCollection<FinTransaction> trans = ptfActivity.transactions();
+            assertFalse(trans.isEmpty());
+            validator.validateAndThrow(trans, FinTransactionConstraints::of);
+
+            SimplePtf ptf = new SimplePtf(trans);
+            assertEquals(0, ptf.getHoldingQty(Country.US, "GOLD").compareTo(ZERO));
         }
     }
 
