@@ -97,18 +97,7 @@ class RvltTradingAccStatementParser {
             }
             Assert.isTrue(header1Found);
         }
-        boolean eurSummaryFound = false;
-        {
-            for (; r < linesSize; r++) {
-                String line = stripToEmpty(lines.get(r));
-                if (line.equals("EUR Account summary")) {
-                    eurSummaryFound = true;
-                    r++;
-                    break;
-                }
-            }
-        }
-        if (eurSummaryFound) {
+        if (lines.get(10).equals("EUR Account summary")) {
             {
                 boolean eurBreakdownFound = false;
                 for (; r < linesSize; r++) {
@@ -145,8 +134,7 @@ class RvltTradingAccStatementParser {
                 }
                 Assert.isTrue(header2Found);
             }
-        } else {
-            r = 0;
+            r = 11;
         }
 
         LocalDate periodFrom = null;
