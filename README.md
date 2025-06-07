@@ -104,3 +104,10 @@ before using them, allowing time for reports of old accounts to stabilize
 and new account reports to include all important data.
 In 2024, a 14-day waiting period was sufficient for the reports to consolidate.
 
+#### IBKR – Fictitious FX_BUY Trade on the Date a Foreign-Currency Dividend Is Received
+The Activity Statement shows an _FX_BUY Trade_ (buy EUR, sell USD) 
+on the same date a USD-denominated dividend is received. 
+This trade does not affect the cash balance in either currency.
+On that same date, the report also shows a transfer of type _"Adjustment: Cash Receipt/Disbursement/Transfer"_ 
+that reverses the FX_BUY trade.
+To keep cash balances accurate, one should always process both entries together.

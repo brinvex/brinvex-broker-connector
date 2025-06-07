@@ -1,6 +1,9 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TransferType;
+import com.brinvex.brokercon.adapter.ibkr.internal.builder.TransferBuilder;
 import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetSubCategory;
@@ -70,6 +73,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         List<CorporateAction> corporateActions = new LinkedList<>();
         List<EquitySummary> equitySummaries = new LinkedList<>();
         List<Trade> trades = new LinkedList<>();
+        List<Transfer> transfers = new LinkedList<>();
 
         try {
             XMLEventReader reader = Lazy.xmlInputFactory.createXMLEventReader(new StringReader(statementXmlContent));
@@ -94,7 +98,8 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                                 .corporateActions(corporateActions)
                                 .cashTransactions(cashTransactions)
                                 .trades(trades)
-                                .equitySummaries(equitySummaries);
+                                .equitySummaries(equitySummaries)
+                                .transfers(transfers);
                     }
                     case "Trade" -> trades.add(new TradeBuilder()
                             .currency(parseEnum(Currency::valueOf, getAttrValue(e, TradeQN.currency)))
@@ -181,11 +186,26 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .build());
                     case "Transfer" -> {
                         AssetCategory assetCat = parseEnum(AssetCategory::fromValue, getAttrValue(e, TransferQN.assetCategory));
-                        String type = getAttrValue(e, TransferQN.type);
-                        if (assetCat.equals(AssetCategory.CASH) && type.equals("INTERNAL")) {
+                        TransferType type = parseEnum(TransferType::valueOf, getAttrValue(e, TransferQN.type));
+                        if (assetCat.equals(AssetCategory.CASH) && type.equals(TransferType.INTERNAL)) {
+                            transfers.add(new TransferBuilder()
+                                    .type(type)
+                                    .reportDate(parseDate(getAttrValue(e, TransferQN.reportDate)))
+                                    .currency(parseEnum(Currency::valueOf, getAttrValue(e, TransferQN.currency)))
+                                    .assetCategory(parseEnum(AssetCategory::fromValue, getAttrValue(e, TransferQN.assetCategory)))
+                                    .symbol(nullIf(getAttrValue(e, TransferQN.symbol), "--"))
+                                    .description(getAttrValue(e, TransferQN.description))
+                                    .isin(getAttrValue(e, TransferQN.isin))
+                                    .figi(getAttrValue(e, TransferQN.figi))
+                                    .quantity(getAttrBigDecimal(e, TransferQN.quantity))
+                                    .date(parseDate(getAttrValue(e, TransferQN.date)))
+                                    .settleDate(parseDate(getAttrValue(e, TransferQN.settleDate)))
+                                    .cashTransfer(getAttrBigDecimal(e, TransferQN.cashTransfer))
+                                    .transactionID(getAttrValue(e, TransferQN.transactionID))
+                                    .build());
                             continue;
                         }
-                        if (assetCat.equals(AssetCategory.STK) && type.equals("INTERCOMPANY")) {
+                        if (assetCat.equals(AssetCategory.STK) && type.equals(TransferType.INTERCOMPANY)) {
                             continue;
                         }
                         throw new IllegalStateException("Unsupported transfer: %s, %s".formatted(assetCat, type));
@@ -286,6 +306,13 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
 
     private <E extends Enum<E>> E parseEnum(Function<String, E> strToEnumFnc, String str) {
         return str == null || str.isBlank() ? null : strToEnumFnc.apply(str);
+    }
+
+    private String nullIf(String s, String nullIf) {
+        if (s != null && s.equals(nullIf)) {
+            return null;
+        }
+        return s;
     }
 
     private ZonedDateTime parseZonedDateTime(String str) {
@@ -436,8 +463,19 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
     }
 
     private static class TransferQN {
-        static final QName assetCategory = new QName("assetCategory");
         static final QName type = new QName("type");
+        static final QName reportDate = new QName("reportDate");
+        static final QName currency = new QName("currency");
+        static final QName assetCategory = new QName("assetCategory");
+        static final QName symbol = new QName("symbol");
+        static final QName description = new QName("description");
+        static final QName isin = new QName("isin");
+        static final QName figi = new QName("figi");
+        static final QName quantity = new QName("quantity");
+        static final QName date = new QName("date");
+        static final QName settleDate = new QName("settleDate");
+        static final QName cashTransfer = new QName("cashTransfer");
+        static final QName transactionID = new QName("transactionID");
     }
 
     private static class Lazy {

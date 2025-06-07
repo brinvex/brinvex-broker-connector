@@ -1,5 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.api.service;
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransaction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CorporateAction;
@@ -15,6 +16,8 @@ public interface IbkrFinTransactionMapper {
     List<FinTransaction> mapTrades(List<Trade> trades);
 
     List<FinTransaction> mapCorporateAction(List<CorporateAction> corpActions);
+
+    List<FinTransaction> mapTransfers(List<Transfer> transfers);
 
     List<FinTransaction> mapTradeConfirms(List<TradeConfirm> tradeConfirms);
 

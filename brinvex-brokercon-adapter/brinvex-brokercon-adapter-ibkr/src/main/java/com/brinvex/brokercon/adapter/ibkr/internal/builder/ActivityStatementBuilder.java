@@ -5,6 +5,7 @@ import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CorporateAction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.EquitySummary;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.FlexStatement;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Trade;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.java.validation.Assert;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class ActivityStatementBuilder {
     private Collection<Trade> trades;
     private Collection<CorporateAction> corporateActions;
     private Collection<EquitySummary> equitySummaries;
+    private Collection<Transfer> transfers;
 
     public FlexStatement.ActivityStatement build() {
         Assert.notNullNotBlank(accountId);
@@ -40,7 +42,8 @@ public class ActivityStatementBuilder {
                 List.copyOf(cashTransactions),
                 List.copyOf(trades),
                 List.copyOf(corporateActions),
-                List.copyOf(equitySummaries)
+                List.copyOf(equitySummaries),
+                List.copyOf(transfers)
         );
     }
 
@@ -81,6 +84,11 @@ public class ActivityStatementBuilder {
 
     public ActivityStatementBuilder equitySummaries(Collection<EquitySummary> equitySummaries) {
         this.equitySummaries = equitySummaries;
+        return this;
+    }
+
+    public ActivityStatementBuilder transfers(Collection<Transfer> transfers) {
+        this.transfers = transfers;
         return this;
     }
 }

@@ -1,18 +1,19 @@
 package test.com.brinvex.ptfactivity.adapter.ibkr;
 
 
-import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.ibkr.api.IbkrModule;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrDocKey.ActivityDocKey;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrDms;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrPtfActivityProvider;
-import com.brinvex.brokercon.core.api.domain.PtfActivity;
-import com.brinvex.brokercon.core.api.facade.ValidatorFacade;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
-import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.constraints.fintransaction.FinTransactionConstraints;
-import com.brinvex.brokercon.testsupport.TestContext;
+import com.brinvex.brokercon.core.api.facade.ValidatorFacade;
 import com.brinvex.brokercon.testsupport.SimplePtf;
+import com.brinvex.brokercon.testsupport.TestContext;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.fintypes.vo.DateAmount;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
@@ -21,9 +22,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static com.brinvex.fintypes.enu.Country.DE;
+import static com.brinvex.fintypes.enu.Country.US;
 import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.fintypes.enu.Currency.USD;
-import static com.brinvex.fintypes.enu.Country.US;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_UP;
 import static java.time.LocalDate.now;
@@ -114,9 +116,9 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
 
             assertEquals(326, ptf.getTransactions().size());
             FinTransaction tran = ptf.getTransactions().get(310);
-            assertEquals(tran.type(), FinTransactionType.DIVIDEND);
-            assertEquals(tran.externalType(), "PAYMENT_IN_LIEU_OF_DIVIDENDS");
-            assertEquals(tran.asset().symbol(), "ARCC");
+            assertEquals(FinTransactionType.DIVIDEND, tran.type());
+            assertEquals("PAYMENT_IN_LIEU_OF_DIVIDENDS", tran.externalType());
+            assertEquals("ARCC", tran.asset().symbol());
         }
     }
 
@@ -323,5 +325,196 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
         }
     }
 
+    @EnabledIf("account2IsNotNull")
+    @Test
+    void ptfProgress_balanceCorrectness() {
+        TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20250607");
+        IbkrPtfActivityProvider ptfProgressProvider = brokercon.get(IbkrModule.class).ptfProgressProvider();
+        ValidatorFacade validator = brokercon.validator();
+
+        SimplePtf ptf;
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-06-10")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals(0, ptf.getHoldingQty(US, "NVDA").compareTo(new BigDecimal("60")));
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), now()
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            assertTrue(ptf.getTransactions().size() <= ptfActivity.transactions().size());
+
+            ptf = new SimplePtf(ptfActivity.transactions());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), now()
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            assertTrue(ptf.getTransactions().size() <= ptfActivity.transactions().size());
+
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertTrue(ptf.getCurrencies().size() >= 2);
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-09-05")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("6", ptf.getHoldingQty(Country.US, "ILMN").toString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-09-11")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("35", ptf.getHoldingQty(DE, "CSPX").toString());
+            assertEquals("59.64", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("517.29", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+            assertEquals("5108.86", ptfActivity.netAssetValues().getLast().amount().remainder(new BigDecimal("10000")).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-10-10")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("0.02", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("811.39", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+            assertEquals("35", ptf.getHoldingQty(DE, "CSPX").toString());
+            assertEquals("1653.08", ptfActivity.netAssetValues().getLast().amount().remainder(new BigDecimal("10000")).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-10-21")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("0.02", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("595.01", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-10-31")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("206.48", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("693.38", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-11-22")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("1206.48", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("564.24", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-11-29")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("477.44", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("587.03", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2024-12-31")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("65.66", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("426.40", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-15")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("43.96", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("8.52", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-22")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("24.40", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("18.34", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-27")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("114.42", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("19.78", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-28")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("114.42", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("20.01", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-29")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("114.42", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("20.01", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-01-31")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("114.42", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
+            assertEquals("31.89", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-06-04")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("0.00", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
+            assertEquals("68", ptf.getHoldingQty(DE, "CSPX").toString());
+        }
+    }
 }
 

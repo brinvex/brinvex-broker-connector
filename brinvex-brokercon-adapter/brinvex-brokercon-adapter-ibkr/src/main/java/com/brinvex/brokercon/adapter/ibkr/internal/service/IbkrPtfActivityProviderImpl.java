@@ -1,7 +1,5 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
-import com.brinvex.fintypes.enu.Currency;
-import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrAccount;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrAccount.Credentials;
 import com.brinvex.brokercon.adapter.ibkr.api.model.IbkrDocKey.ActivityDocKey;
@@ -19,6 +17,8 @@ import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.PtfActivity;
 import com.brinvex.brokercon.core.api.domain.PtfActivityReq;
 import com.brinvex.brokercon.core.api.exception.AssistanceRequiredException;
+import com.brinvex.fintypes.enu.Currency;
+import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.java.validation.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +37,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static com.brinvex.java.collection.CollectionUtil.getFirstThrowIfMore;
+import static com.brinvex.fintypes.enu.FinTransactionType.OTHER_INTERNAL_FLOW;
 import static com.brinvex.java.DateUtil.maxDate;
 import static com.brinvex.java.DateUtil.minDate;
 import static com.brinvex.java.NullUtil.nullSafe;
+import static com.brinvex.java.collection.CollectionUtil.getFirstThrowIfMore;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 import static java.util.Collections.emptyList;
@@ -106,12 +107,20 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
         SequencedMap<LocalDate, DateAmount> navs = new LinkedHashMap<>();
         Currency pcy = account.ccy();
 
+        LocalDate prevAccountIdValidToIncl = null;
         for (IbkrAccount.MigratedAccount migratedAccount : account.migratedAccounts()) {
             LocalDate progressFromDateIncl = maxDate(fromDateIncl, migratedAccount.externalIdValidFromIncl());
             LocalDate progressToDateIncl = minDate(toDateIncl, migratedAccount.externalIdValidToIncl());
             if (!progressFromDateIncl.isAfter(progressToDateIncl)) {
                 PtfActivity migrPtfActivity = getSinglePtfProgress(
-                        migratedAccount.externalId(), pcy, migratedAccount.credentials(), progressFromDateIncl, progressToDateIncl, staleTolerance, online
+                        migratedAccount.externalId(),
+                        pcy,
+                        migratedAccount.credentials(),
+                        progressFromDateIncl,
+                        progressToDateIncl,
+                        prevAccountIdValidToIncl == null ? null : prevAccountIdValidToIncl.plusDays(1),
+                        staleTolerance,
+                        online
                 );
                 if (migrPtfActivity != null) {
                     trans.addAll(migrPtfActivity.transactions());
@@ -120,13 +129,21 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
                     }
                 }
             }
+            prevAccountIdValidToIncl = migratedAccount.externalIdValidToIncl();
         }
         {
             LocalDate progressFromDateIncl = maxDate(fromDateIncl, account.externalIdValidFromIncl());
             LocalDate progressToDateIncl = toDateIncl;
             if (!progressFromDateIncl.isAfter(progressToDateIncl)) {
                 PtfActivity mainPtfActivity = getSinglePtfProgress(
-                        account.externalId(), pcy, account.credentials(), progressFromDateIncl, progressToDateIncl, staleTolerance, online
+                        account.externalId(),
+                        pcy,
+                        account.credentials(),
+                        progressFromDateIncl,
+                        progressToDateIncl,
+                        prevAccountIdValidToIncl == null ? null : prevAccountIdValidToIncl.plusDays(1),
+                        staleTolerance,
+                        online
                 );
                 if (mainPtfActivity != null) {
                     trans.addAll(mainPtfActivity.transactions());
@@ -146,7 +163,17 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
         return new PtfActivity(trans, new ArrayList<>(navs.values()));
     }
 
-    private PtfActivity getSinglePtfProgress(String accountId, Currency pcy, Credentials credentials, LocalDate fromDateIncl, LocalDate toDateIncl, Duration staleTolerance, boolean online) {
+    @SuppressWarnings("RedundantIfStatement")
+    private PtfActivity getSinglePtfProgress(
+            String accountId,
+            Currency pcy,
+            Credentials credentials,
+            LocalDate fromDateIncl,
+            LocalDate toDateIncl,
+            LocalDate otherInternalFlowsFromDateIncl,
+            Duration staleTolerance,
+            boolean online
+    ) {
         assert accountId != null;
         assert pcy != null;
         assert !fromDateIncl.isAfter(toDateIncl);
@@ -238,6 +265,8 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
 
         List<FinTransaction> corpActions = finTransactionMapper.mapCorporateAction(mergedActStatement.corporateActions());
 
+        List<FinTransaction> transfers = finTransactionMapper.mapTransfers(mergedActStatement.transfers());
+
         List<FinTransaction> tcTrades;
         {
             LocalDate tcDate = mergedActStatement.toDate().plusDays(1);
@@ -282,11 +311,19 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
             }
         }
 
-        List<FinTransaction> newTrans = Stream.of(corpActions, cashTrans, trades, tcTrades)
+        List<FinTransaction> newTrans = Stream.of(corpActions, cashTrans, trades, transfers, tcTrades)
                 .flatMap(Collection::stream)
                 .filter(t -> {
                     LocalDate date = t.date();
-                    return !date.isBefore(fromDateIncl) && !date.isAfter(toDateIncl);
+                    if (date.isBefore(fromDateIncl) || date.isAfter(toDateIncl)) {
+                        return false;
+                    }
+                    if (otherInternalFlowsFromDateIncl != null) {
+                        if (t.type() == OTHER_INTERNAL_FLOW && date.isBefore(otherInternalFlowsFromDateIncl)) {
+                            return false;
+                        }
+                    }
+                    return true;
                 })
                 .sorted(comparing(FinTransaction::date))
                 .toList();

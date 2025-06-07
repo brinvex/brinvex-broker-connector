@@ -1,5 +1,7 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TransferType;
 import com.brinvex.fintypes.enu.Country;
 import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
@@ -26,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -434,6 +437,43 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
             }
         }
         return new ArrayList<>(resultTrans.values());
+    }
+
+    @Override
+    public List<FinTransaction> mapTransfers(List<Transfer> transfers) {
+        transfers = transfers.stream()
+                .sorted(comparing(Transfer::reportDate))
+                .toList();
+
+        List<FinTransaction> resultTrans = new LinkedList<>();
+
+        for (Transfer transfer : transfers) {
+            if (transfer.type().equals(TransferType.INTERNAL) && transfer.assetCategory().equals(AssetCategory.CASH)) {
+                Assert.equal(0, transfer.quantity().compareTo(ZERO));
+                Assert.isTrue(transfer.figi() == null || transfer.figi().isEmpty());
+                Assert.isTrue(transfer.isin() == null || transfer.isin().isEmpty());
+                Assert.isTrue(transfer.symbol() == null || transfer.symbol().isEmpty());
+
+                resultTrans.add(FinTransaction.builder()
+                        .externalId(transfer.transactionID())
+                        .type(FinTransactionType.OTHER_INTERNAL_FLOW)
+                        .date(transfer.reportDate())
+                        .asset(null)
+                        .ccy(transfer.currency())
+                        .netValue(transfer.cashTransfer())
+                        .grossValue(transfer.cashTransfer())
+                        .qty(ZERO)
+                        .tax(ZERO)
+                        .fee(ZERO)
+                        .externalDetail(transfer.description())
+                        .settleDate(transfer.settleDate())
+                        .build());
+            } else {
+                throw new RuntimeException("Not yet implemented - %s".formatted(transfer));
+            }
+        }
+
+        return resultTrans;
     }
 
     private Country detectCountryByExchange(String listingExchange) {

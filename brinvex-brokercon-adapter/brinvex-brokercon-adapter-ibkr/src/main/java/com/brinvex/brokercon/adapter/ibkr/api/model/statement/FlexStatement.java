@@ -14,7 +14,8 @@ public sealed interface FlexStatement permits FlexStatement.ActivityStatement, F
             List<CashTransaction> cashTransactions,
             List<Trade> trades,
             List<CorporateAction> corporateActions,
-            List<EquitySummary> equitySummaries
+            List<EquitySummary> equitySummaries,
+            List<Transfer> transfers
     ) implements FlexStatement {
 
         public ActivityStatement(
@@ -25,7 +26,8 @@ public sealed interface FlexStatement permits FlexStatement.ActivityStatement, F
                 List<CashTransaction> cashTransactions,
                 List<Trade> trades,
                 List<CorporateAction> corporateActions,
-                List<EquitySummary> equitySummaries
+                List<EquitySummary> equitySummaries,
+                List<Transfer> transfers
         ) {
             this.accountId = accountId;
             this.fromDate = fromDate;
@@ -35,6 +37,7 @@ public sealed interface FlexStatement permits FlexStatement.ActivityStatement, F
             this.trades = trades == null ? null : List.copyOf(trades);
             this.corporateActions = corporateActions == null ? null : List.copyOf(corporateActions);
             this.equitySummaries = equitySummaries == null ? null : List.copyOf(equitySummaries);
+            this.transfers = transfers == null ? null : List.copyOf(transfers);
         }
     }
 

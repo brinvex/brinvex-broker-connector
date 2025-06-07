@@ -1,5 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.java.validation.Assert;
 import com.brinvex.java.validation.Validate;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransaction;
@@ -45,6 +46,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
         SequencedSet<Trade> trades = new LinkedHashSet<>();
         SequencedSet<CorporateAction> corpActions = new LinkedHashSet<>();
         SequencedSet<EquitySummary> equitySummaries = new LinkedHashSet<>();
+        SequencedSet<Transfer> transfers = new LinkedHashSet<>();
 
         for (ActivityStatement statement : sortedStatements) {
             String accountId = statement.accountId();
@@ -70,6 +72,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
             trades.addAll(statement.trades());
             corpActions.addAll(statement.corporateActions());
             equitySummaries.addAll(statement.equitySummaries());
+            transfers.addAll(statement.transfers());
         }
 
         return Optional.of(new ActivityStatementBuilder()
@@ -80,6 +83,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
                 .trades(trades)
                 .corporateActions(corpActions)
                 .equitySummaries(equitySummaries)
+                .transfers(transfers)
                 .build());
     }
 }
