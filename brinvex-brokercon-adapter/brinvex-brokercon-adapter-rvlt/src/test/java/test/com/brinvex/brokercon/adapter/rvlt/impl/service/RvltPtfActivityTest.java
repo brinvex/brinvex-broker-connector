@@ -100,6 +100,15 @@ class RvltPtfActivityTest extends RvltBaseTest {
             assertEquals("-3.37", tran1.tax().toPlainString());
             assertEquals(0, tran1.fee().compareTo(ZERO));
         }
+        {
+            LocalDate tranDate1 = parse("2020-09-01");
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions().stream().takeWhile(t -> t.date().isBefore(tranDate1)).toList());
+            //todo 3 - There is a confirmed bug in RVLT and we are waiting while they fix it.
+            // The Split transaction of APPL 4:1 occurred on 2020-08-31 is not listed in the one-month Account Statement.
+            // The Split transaction is correctly listed when the statement period is 2-months or more.
+            //assertEquals("20.0", ptf.getHoldingQty(US, "AAPL").toPlainString());
+
+        }
     }
 
     @EnabledIf("account1IsNotNull")
