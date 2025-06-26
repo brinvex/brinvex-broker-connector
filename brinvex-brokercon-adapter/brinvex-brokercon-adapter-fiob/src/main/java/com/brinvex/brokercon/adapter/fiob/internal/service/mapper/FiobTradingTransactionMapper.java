@@ -259,20 +259,26 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) < 0);
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
 
-                Assert.isTrue(FiobTradingTransactionType.TAX_REFUND.equals(nextExtraType));
-                Assert.isTrue(symbol.equals(nextSymbol));
-                Assert.isTrue(tranBuilder.ccy().equals(nextTranBuilder.ccy()));
-                Assert.isTrue(nextTranBuilder.price().compareTo(ONE) == 0);
-                Assert.isTrue(nextTranBuilder.fee().compareTo(ZERO) == 0);
-                Assert.isTrue(nextTranBuilder.grossValue().compareTo(ZERO) > 0);
-                Assert.equal(nextTranBuilder.grossValue(), nextTranBuilder.qty());
+                if (FiobTradingTransactionType.TAX_REFUND.equals(nextExtraType)) {
+                    Assert.isTrue(symbol.equals(nextSymbol));
+                    Assert.isTrue(tranBuilder.ccy().equals(nextTranBuilder.ccy()));
+                    Assert.isTrue(nextTranBuilder.price().compareTo(ONE) == 0);
+                    Assert.isTrue(nextTranBuilder.fee().compareTo(ZERO) == 0);
+                    Assert.isTrue(nextTranBuilder.grossValue().compareTo(ZERO) > 0);
+                    Assert.equal(nextTranBuilder.grossValue(), nextTranBuilder.qty());
 
-                tranBuilder.tax(nextTranBuilder.grossValue());
-                tranBuilder.qty(ZERO);
-                tranBuilder.netValue(tranBuilder.grossValue().add(tranBuilder.tax()));
-                tranBuilder.price(null);
+                    tranBuilder.tax(nextTranBuilder.grossValue());
+                    tranBuilder.qty(ZERO);
+                    tranBuilder.netValue(tranBuilder.grossValue().add(tranBuilder.tax()));
+                    tranBuilder.price(null);
 
-                rawTransToProcess.removeFirst();
+                    rawTransToProcess.removeFirst();
+                } else {
+                    tranBuilder.tax(ZERO);
+                    tranBuilder.qty(ZERO);
+                    tranBuilder.netValue(tranBuilder.grossValue());
+                    tranBuilder.price(null);
+                }
             } else if (extraType == FiobTradingTransactionType.FEE) {
                 Assert.isTrue(symbol != null || tranBuilder.qty().compareTo(ZERO) == 0);
                 Assert.notNull(tranBuilder.ccy());

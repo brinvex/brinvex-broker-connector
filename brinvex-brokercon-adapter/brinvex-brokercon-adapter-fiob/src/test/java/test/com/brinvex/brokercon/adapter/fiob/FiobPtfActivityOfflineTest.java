@@ -17,6 +17,7 @@ import com.brinvex.brokercon.testsupport.SimplePtf;
 import com.brinvex.brokercon.testsupport.TestContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ import java.util.Set;
 import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.brokercon.testsupport.AssertionUtil.assertPtfSnapshotEqual;
 import static java.math.BigDecimal.ZERO;
+import static java.time.Duration.ofMinutes;
 import static java.time.LocalDate.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -199,6 +201,32 @@ class FiobPtfActivityOfflineTest extends FiobBaseTest {
             }
 
         }
+    }
+
+    @EnabledIf("account1IsNotNull")
+    @Test
+    void ptfProgress5_dividendReversalWithoutTax() {
+        assert account1 != null;
+
+        String dmsWorkspace = "fiob-dms-stable-20250626";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(dmsWorkspace);
+        FiobModule fiobModule = testCtx.get(FiobModule.class);
+        FiobPtfActivityProvider ptfProgressProvider = fiobModule.ptfProgressProvider();
+        ValidatorFacade validator = testCtx.validator();
+
+        LocalDate fromDateIncl = parse("2019-01-01");
+        LocalDate toDateIncl = parse("2025-06-26");
+
+        PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(account1, fromDateIncl, toDateIncl);
+
+        SimplePtf expectedPtf = loadExpectedPtfSnapshot(testCtx, account1, toDateIncl);
+
+        SequencedCollection<FinTransaction> trans = ptfActivity.transactions();
+        assertFalse(trans.isEmpty());
+        validator.validateAndThrow(trans, FinTransactionConstraints::of);
+
+        SimplePtf ptf = new SimplePtf(trans);
+        assertPtfSnapshotEqual(expectedPtf, ptf);
     }
 
     @EnabledIf("account1IsNotNull")
