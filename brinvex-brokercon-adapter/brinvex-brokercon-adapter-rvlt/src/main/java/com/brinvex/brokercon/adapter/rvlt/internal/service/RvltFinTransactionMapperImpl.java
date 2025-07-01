@@ -81,6 +81,23 @@ public class RvltFinTransactionMapperImpl implements RvltFinTransactionMapper {
                         .qty(ZERO)
                         .build();
                 resultTrans.add(tran);
+            } else if (rvltTranType == TransactionType.DIVIDEND_TAX_CORRECTION) {
+                Assert.isTrue(Num.isNegative(rvltTran.value()));
+                Assert.isTrue(Num.isZero(rvltTran.fees()));
+                Assert.isTrue(Num.isZero(rvltTran.commission()));
+
+                Transaction next1RevtTran = rvltTransactions.get(i + 1);
+                Assert.isTrue(Num.isPositive(next1RevtTran.value()));
+                Assert.isTrue(Num.isZero(next1RevtTran.fees()));
+                Assert.isTrue(Num.isZero(next1RevtTran.commission()));
+
+                Assert.equal(rvltTran.country(), next1RevtTran.country());
+                Assert.equal(rvltTran.symbol(), next1RevtTran.symbol());
+
+                Assert.isTrue(rvltTran.value().negate().compareTo(next1RevtTran.value()) == 0);
+
+                i = i + 1;
+
             } else if (rvltTranType == TransactionType.TRADE_LIMIT || rvltTranType == TransactionType.TRADE_MARKET) {
                 Assert.isTrue(Num.isPositive(rvltTran.qty()));
                 Assert.isTrue(Num.isNullOrZero(rvltTran.withholdingTax()));

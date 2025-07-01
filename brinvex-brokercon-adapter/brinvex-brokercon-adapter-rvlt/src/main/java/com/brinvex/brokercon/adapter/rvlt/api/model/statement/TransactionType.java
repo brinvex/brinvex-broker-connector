@@ -10,6 +10,8 @@ public enum TransactionType {
 
     DIVIDEND,
 
+    DIVIDEND_TAX_CORRECTION,
+
     MERGER,
 
     SPINOFF,

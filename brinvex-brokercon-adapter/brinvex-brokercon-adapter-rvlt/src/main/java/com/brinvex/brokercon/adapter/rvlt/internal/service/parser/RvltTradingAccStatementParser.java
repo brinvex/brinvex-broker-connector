@@ -52,7 +52,7 @@ class RvltTradingAccStatementParser {
         private static final Pattern TRANSACTION_DATE_SYMBOL_TYPE_PATTERN = Pattern.compile("""
                 (?<date>\\d{2}\\s+\\w{3}\\s+\\d{4}\\s+\\d{2}:\\d{2}:\\d{2}\\s+[A-Z]{3})\
                 (\\s*(?<symbol>.+))?\
-                \\s+(?<type>(Custody fee)|(Dividend)|(Cash top-up)|(Cash withdrawal)|(Trade - Market)|(Trade - Limit)|(Stock split)|(Spinoff)|(Merger - stock))\
+                \\s+(?<type>(Custody fee)|(Dividend tax \\(correction\\))|(Dividend)|(Cash top-up)|(Cash withdrawal)|(Trade - Market)|(Trade - Limit)|(Stock split)|(Spinoff)|(Merger - stock))\
                 \\s+(?<numbersPart>.*)"""
         );
 
@@ -318,7 +318,7 @@ class RvltTradingAccStatementParser {
         }
         {
             Pattern pattern = switch (transactionType) {
-                case CASH_TOP_UP, CASH_WITHDRAWAL, CUSTODY_FEE, DIVIDEND -> Lazy.VALUE_FEES_COMMISSION_PATTERN;
+                case CASH_TOP_UP, CASH_WITHDRAWAL, CUSTODY_FEE, DIVIDEND, DIVIDEND_TAX_CORRECTION -> Lazy.VALUE_FEES_COMMISSION_PATTERN;
                 case SPINOFF, STOCK_SPLIT, MERGER -> Lazy.QTY_VALUE_FEES_COMMISSIONS_PATTERN;
                 case TRADE_LIMIT, TRADE_MARKET -> Lazy.TRADE_PATTERN;
             };
@@ -347,6 +347,7 @@ class RvltTradingAccStatementParser {
         return transactionTypeStr == null ? null : switch (transactionTypeStr) {
             case "Custody fee" -> TransactionType.CUSTODY_FEE;
             case "Dividend" -> TransactionType.DIVIDEND;
+            case "Dividend tax (correction)" -> TransactionType.DIVIDEND_TAX_CORRECTION;
             case "Cash top-up" -> TransactionType.CASH_TOP_UP;
             case "Cash withdrawal" -> TransactionType.CASH_WITHDRAWAL;
             case "Trade - Market" -> TransactionType.TRADE_MARKET;

@@ -36,7 +36,7 @@ class RvltPtfActivityTest extends RvltBaseTest {
         RvltModule rvltModule = testCtx.get(RvltModule.class);
         ValidatorFacade validator = testCtx.validator();
         RvltPtfActivityProvider rvltPtfProgressProvider = rvltModule.ptfProgressProvider();
-        PtfActivity ptfActivity = rvltPtfProgressProvider.getPtfProgress(account1, parse("2020-02-04"), parse("2024-12-01"));
+        PtfActivity ptfActivity = rvltPtfProgressProvider.getPtfProgress(account1, parse("2020-02-04"), parse("2025-07-01"));
         validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
         LinkedHashMap<LocalDate, DateAmount> navs = ptfActivity.netAssetValues().stream().collect(toLinkedMap(DateAmount::date, identity()));
         List<LocalDate> navDates = List.copyOf(navs.keySet());
