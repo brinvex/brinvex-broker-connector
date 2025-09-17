@@ -17,7 +17,7 @@ For example, if you need integration with IBKR,
 import the ``brinvex-brokercon-adapter-ibkr`` dependencies.
 
     <properties>
-         <brinvex-brokercon.version>1.0.13</brinvex-brokercon.version>
+         <brinvex-brokercon.version>1.1.0</brinvex-brokercon.version>
     </properties>
     
     <repository>
@@ -111,3 +111,16 @@ This trade does not affect the cash balance in either currency.
 On that same date, the report also shows a transfer of type _"Adjustment: Cash Receipt/Disbursement/Transfer"_ 
 that reverses the FX_BUY trade.
 To keep cash balances accurate, one should always process both entries together.
+
+#### IBKR - Symbol-Only Changes Not Reported as Corporate Actions
+IBKR does not record symbol-only changes 
+(where the underlying financial instrument remains the same but the ticker changes) 
+as explicit Corporate Actions in Flex Queries. When a ticker is renamed, 
+the old symbol simply disappears from reports and the new one appears in its place.
+To address this limitation, we leverage the PriorPeriodPosition section
+to compare consecutive position snapshots. By matching stable identifiers (e.g., figi or isin)
+across dates, we can detect cases where the symbol changes 
+and record these as synthetic “transformation transactions” in our systems. 
+When a Flex Query is generated for a full year, 
+it produces a daily PriorPeriodPosition snapshot - meaning up to 365 entries 
+for each position - which we process to identify such symbol changes efficiently.
