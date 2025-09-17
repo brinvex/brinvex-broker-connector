@@ -124,6 +124,29 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
 
     @EnabledIf("account2IsNotNull")
     @Test
+    void portfolioProgress_symbolChange() {
+        String workspace = "ibkr-dms-stable-20250917";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(workspace);
+        IbkrModule ibkrModule = testCtx.get(IbkrModule.class);
+        IbkrPtfActivityProvider ptfProgressProvider = ibkrModule.ptfProgressProvider();
+        ValidatorFacade validator = testCtx.validator();
+
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-09-17"));
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
+
+            assertEquals(new BigDecimal("0"), ptf.getHoldingQty(US, "SQ"));
+            assertEquals(new BigDecimal("6"), ptf.getHoldingQty(US, "XYZ"));
+
+            assertEquals(new BigDecimal("0"), ptf.getHoldingQty(US, "IGT"));
+            assertEquals(new BigDecimal("40"), ptf.getHoldingQty(US, "BRSL"));
+        }
+    }
+
+    @EnabledIf("account2IsNotNull")
+    @Test
     void portfolioProgress_tradeConfirm() {
 
         List<FinTransaction> actAndTcTrans;

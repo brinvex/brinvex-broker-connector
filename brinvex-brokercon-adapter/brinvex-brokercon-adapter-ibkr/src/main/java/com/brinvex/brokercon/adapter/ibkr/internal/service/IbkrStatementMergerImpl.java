@@ -1,5 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.PriorPeriodPosition;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.java.validation.Assert;
 import com.brinvex.java.validation.Validate;
@@ -47,6 +48,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
         SequencedSet<CorporateAction> corpActions = new LinkedHashSet<>();
         SequencedSet<EquitySummary> equitySummaries = new LinkedHashSet<>();
         SequencedSet<Transfer> transfers = new LinkedHashSet<>();
+        SequencedSet<PriorPeriodPosition> priorPeriodPositions = new LinkedHashSet<>();
 
         for (ActivityStatement statement : sortedStatements) {
             String accountId = statement.accountId();
@@ -73,6 +75,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
             corpActions.addAll(statement.corporateActions());
             equitySummaries.addAll(statement.equitySummaries());
             transfers.addAll(statement.transfers());
+            priorPeriodPositions.addAll(statement.priorPeriodPositions());
         }
 
         return Optional.of(new ActivityStatementBuilder()
@@ -84,6 +87,7 @@ public class IbkrStatementMergerImpl implements IbkrStatementMerger {
                 .corporateActions(corpActions)
                 .equitySummaries(equitySummaries)
                 .transfers(transfers)
+                .priorPeriodPositions(priorPeriodPositions)
                 .build());
     }
 }

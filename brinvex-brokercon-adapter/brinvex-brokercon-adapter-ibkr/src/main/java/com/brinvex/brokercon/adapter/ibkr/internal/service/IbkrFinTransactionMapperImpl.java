@@ -1,9 +1,5 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
-import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
-import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TransferType;
-import com.brinvex.fintypes.enu.Country;
-import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetSubCategory;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.BuySell;
@@ -11,26 +7,35 @@ import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransaction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransactionType;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CorporateAction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CorporateActionType;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.PriorPeriodPosition;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Trade;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TradeConfirm;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TransferType;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrFinTransactionMapper;
 import com.brinvex.brokercon.adapter.ibkr.internal.builder.TradeBuilder;
 import com.brinvex.brokercon.core.api.domain.Asset;
-import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.core.api.domain.FinTransaction.FinTransactionBuilder;
+import com.brinvex.fintypes.enu.Country;
+import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.java.validation.Assert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.SequencedMap;
 import java.util.Set;
@@ -437,6 +442,106 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
             }
         }
         return new ArrayList<>(resultTrans.values());
+    }
+
+    @Override
+    public List<FinTransaction> mapSymbolChanges(Collection<FinTransaction> corpActions, List<PriorPeriodPosition> priorPeriodPositions) {
+        Map<String, Map<LocalDate, List<FinTransaction>>> figis2CorpActions = corpActions
+                .stream()
+                .collect(groupingBy(ft -> ft.asset().countryFigi(), groupingBy(FinTransaction::date)));
+
+        Map<String, Map<String, List<PriorPeriodPosition>>> figis2Symbols2PriorPeriodPositions = priorPeriodPositions
+                .stream()
+                .collect(groupingBy(PriorPeriodPosition::figi, groupingBy(PriorPeriodPosition::symbol)));
+
+        List<FinTransaction> finTransactions = new ArrayList<>();
+        for (Entry<String, Map<String, List<PriorPeriodPosition>>> e : figis2Symbols2PriorPeriodPositions.entrySet()) {
+            String figi = e.getKey();
+            Map<String, List<PriorPeriodPosition>> figiPriorPeriodPositions = e.getValue();
+            int symbolSize = figiPriorPeriodPositions.size();
+            if (symbolSize == 1) {
+                continue;
+            } else if (symbolSize == 2) {
+                Iterator<List<PriorPeriodPosition>> it = figiPriorPeriodPositions.values().iterator();
+                List<PriorPeriodPosition> symbol1Positions = new ArrayList<>(it.next());
+                List<PriorPeriodPosition> symbol2Positions = new ArrayList<>(it.next());
+
+                symbol1Positions.sort(comparing(PriorPeriodPosition::date));
+                symbol2Positions.sort(comparing(PriorPeriodPosition::date));
+
+                PriorPeriodPosition oldPosition;
+                PriorPeriodPosition newPosition;
+                PriorPeriodPosition symbol1LastPosition = symbol1Positions.getLast();
+                PriorPeriodPosition symbol2LastPosition = symbol2Positions.getLast();
+                PriorPeriodPosition symbol1FirstPosition = symbol1Positions.getFirst();
+                PriorPeriodPosition symbol2FirstPosition = symbol2Positions.getFirst();
+                if (symbol1LastPosition.date().isBefore(symbol2FirstPosition.date())) {
+                    Assert.isTrue(symbol1LastPosition.date().plusDays(5).isAfter(symbol2LastPosition.date()));
+                    oldPosition = symbol1LastPosition;
+                    newPosition = symbol2FirstPosition;
+                } else if (symbol1LastPosition.date().isAfter(symbol2FirstPosition.date())) {
+                    Assert.isTrue(symbol2LastPosition.date().plusDays(5).isAfter(symbol1FirstPosition.date()));
+                    oldPosition = symbol2LastPosition;
+                    newPosition = symbol1FirstPosition;
+                } else {
+                    throw new IllegalStateException(
+                            "Expecting subsequent dates: %s, %s".formatted(symbol1LastPosition, symbol2FirstPosition));
+                }
+                Map<LocalDate, List<FinTransaction>> figiCorpActions = figis2CorpActions.get(figi);
+                boolean corpActionFound = false;
+                if (figiCorpActions != null) {
+                    LocalDate d1 = oldPosition.date();
+                    LocalDate d2 = newPosition.date();
+                    for (LocalDate d = d1; d.isBefore(d2); d = d.plusDays(1)) {
+                        if (figiCorpActions.containsKey(d)) {
+                            corpActionFound = true;
+                            break;
+                        }
+                    }
+                }
+                if (corpActionFound) {
+                    continue;
+                }
+
+                Assert.isTrue(oldPosition.assetCategory().equals(newPosition.assetCategory()));
+                Assert.isTrue(oldPosition.assetSubCategory().equals(newPosition.assetSubCategory()));
+                Assert.isTrue(oldPosition.currency().equals(newPosition.currency()));
+
+                finTransactions.add(FinTransaction.builder()
+                        .type(TRANSFORMATION)
+                        .date(newPosition.date())
+                        .ccy(newPosition.currency())
+                        .netValue(ZERO)
+                        .qty(ZERO)
+                        .price(null)
+                        .asset(Asset.builder()
+                                .type(toInstType(newPosition.assetCategory(), newPosition.assetSubCategory()))
+                                .countryFigi(figi)
+                                .symbol(newPosition.symbol())
+                                .country(detectCountryByExchange(newPosition.listingExchange()))
+                                .isin(newPosition.isin())
+                                .name(newPosition.description())
+                                .extraType("%s/%s".formatted(newPosition.assetCategory(), newPosition.assetSubCategory()))
+                                .build())
+                        .grossValue(ZERO)
+                        .tax(ZERO)
+                        .fee(ZERO)
+                        .settleDate(newPosition.date())
+                        .groupId(null)
+                        .externalId("SymbolChange_%s/%s/%s->%s".formatted(
+                                newPosition.date(), figi, oldPosition.symbol(), newPosition.symbol()))
+                        .externalType("SymbolChange")
+                        .externalDetail("%s, %s".formatted(oldPosition, newPosition))
+                        .build());
+            } else {
+                throw new IllegalStateException("Expecting max 2 priorPeriodPositions, got %s for figi=%s, %s".formatted(symbolSize, figi, figiPriorPeriodPositions.keySet()));
+
+            }
+
+        }
+
+
+        return finTransactions;
     }
 
     @Override

@@ -221,6 +221,15 @@ class IbkrPtfActivityOnlineTest extends IbkrBaseTest {
             assertEquals("0.00", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
             assertEquals("68", ptf.getHoldingQty(DE, "CSPX").toString());
         }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgress(
+                    account2, parse("2023-01-23"), parse("2025-09-16"), ofMinutes(1)
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("81", ptf.getHoldingQty(DE, "CSPX").toString());
+        }
     }
 }
 

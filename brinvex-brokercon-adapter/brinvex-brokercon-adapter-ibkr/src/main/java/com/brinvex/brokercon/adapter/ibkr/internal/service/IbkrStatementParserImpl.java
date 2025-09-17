@@ -1,8 +1,10 @@
 package com.brinvex.brokercon.adapter.ibkr.internal.service;
 
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.PriorPeriodPosition;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TransferType;
+import com.brinvex.brokercon.adapter.ibkr.internal.builder.PriorPeriodPositionBuilder;
 import com.brinvex.brokercon.adapter.ibkr.internal.builder.TransferBuilder;
 import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.AssetCategory;
@@ -74,6 +76,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         List<EquitySummary> equitySummaries = new LinkedList<>();
         List<Trade> trades = new LinkedList<>();
         List<Transfer> transfers = new LinkedList<>();
+        List<PriorPeriodPosition> priorPeriodPositions = new LinkedList<>();
 
         try {
             XMLEventReader reader = Lazy.xmlInputFactory.createXMLEventReader(new StringReader(statementXmlContent));
@@ -99,7 +102,8 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                                 .cashTransactions(cashTransactions)
                                 .trades(trades)
                                 .equitySummaries(equitySummaries)
-                                .transfers(transfers);
+                                .transfers(transfers)
+                                .priorPeriodPositions(priorPeriodPositions);
                     }
                     case "Trade" -> trades.add(new TradeBuilder()
                             .currency(parseEnum(Currency::valueOf, getAttrValue(e, TradeQN.currency)))
@@ -210,6 +214,17 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                         }
                         throw new IllegalStateException("Unsupported transfer: %s, %s".formatted(assetCat, type));
                     }
+                    case "PriorPeriodPosition" -> priorPeriodPositions.add(new PriorPeriodPositionBuilder()
+                            .currency(parseEnum(Currency::valueOf, getAttrValue(e, PriorPeriodPositionQN.currency)))
+                            .assetCategory(parseEnum(AssetCategory::fromValue, getAttrValue(e, PriorPeriodPositionQN.assetCategory)))
+                            .assetSubCategory(parseEnum(AssetSubCategory::fromValue, getAttrValue(e, PriorPeriodPositionQN.subCategory)))
+                            .symbol(getAttrValue(e, PriorPeriodPositionQN.symbol))
+                            .description(getAttrValue(e, PriorPeriodPositionQN.symbol))
+                            .isin(getAttrValue(e, PriorPeriodPositionQN.isin))
+                            .figi(getAttrValue(e, PriorPeriodPositionQN.figi))
+                            .date(parseDate(getAttrValue(e, PriorPeriodPositionQN.date)))
+                            .listingExchange(getAttrValue(e, PriorPeriodPositionQN.listingExchange))
+                            .build());
                 }
             }
         } catch (XMLStreamException e) {
@@ -460,6 +475,18 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName dividendAccruals = new QName("dividendAccruals");
         static final QName interestAccruals = new QName("interestAccruals");
         static final QName total = new QName("total");
+    }
+
+    private static class PriorPeriodPositionQN {
+        static final QName currency = new QName("currency");
+        static final QName assetCategory = new QName("assetCategory");
+        static final QName subCategory = new QName("subCategory");
+        static final QName symbol = new QName("symbol");
+        static final QName description = new QName("description");
+        static final QName isin = new QName("isin");
+        static final QName figi = new QName("figi");
+        static final QName date = new QName("date");
+        static final QName listingExchange = new QName("listingExchange");
     }
 
     private static class TransferQN {

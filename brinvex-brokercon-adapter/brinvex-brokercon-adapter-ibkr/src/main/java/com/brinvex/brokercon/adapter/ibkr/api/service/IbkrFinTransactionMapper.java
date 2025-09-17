@@ -1,5 +1,6 @@
 package com.brinvex.brokercon.adapter.ibkr.api.service;
 
+import com.brinvex.brokercon.adapter.ibkr.api.model.statement.PriorPeriodPosition;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Transfer;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransaction;
@@ -7,6 +8,7 @@ import com.brinvex.brokercon.adapter.ibkr.api.model.statement.CorporateAction;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.Trade;
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.TradeConfirm;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface IbkrFinTransactionMapper {
@@ -16,6 +18,8 @@ public interface IbkrFinTransactionMapper {
     List<FinTransaction> mapTrades(List<Trade> trades);
 
     List<FinTransaction> mapCorporateAction(List<CorporateAction> corpActions);
+
+    List<FinTransaction> mapSymbolChanges(Collection<FinTransaction> corpActions, List<PriorPeriodPosition> priorPeriodPositions);
 
     List<FinTransaction> mapTransfers(List<Transfer> transfers);
 

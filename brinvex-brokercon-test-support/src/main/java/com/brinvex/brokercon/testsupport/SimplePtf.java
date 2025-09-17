@@ -36,23 +36,29 @@ public class SimplePtf {
     public static class Holding {
         private final Country country;
         private final String symbol;
+        private final String countryFigi;
+        private final String isin;
         private BigDecimal qty;
         private final List<FinTransaction> transactions;
 
-        public Holding(Country country, String symbol, BigDecimal qty) {
-            this(country, symbol, qty, null);
+        public Holding(Country country, String symbol, String countryFigi, String isin, BigDecimal qty) {
+            this(country, symbol, countryFigi, isin, qty, null);
         }
 
         @JsonCreator
         public Holding(
                 @JsonProperty("country") Country country,
                 @JsonProperty("symbol") String symbol,
+                @JsonProperty("countryFigi") String countryFigi,
+                @JsonProperty("isin") String isin,
                 @JsonProperty("qty") BigDecimal qty,
                 @JsonProperty("transactions") List<FinTransaction> transactions
         ) {
             this.country = country;
             this.symbol = symbol;
+            this.isin = isin;
             this.qty = qty;
+            this.countryFigi = countryFigi;
             this.transactions = transactions == null ? new ArrayList<>() : new ArrayList<>(transactions);
         }
 
@@ -73,6 +79,13 @@ public class SimplePtf {
             return symbol;
         }
 
+        public String getCountryFigi() {
+            return countryFigi;
+        }
+
+        public String getIsin() {
+            return isin;
+        }
         public BigDecimal getQty() {
             return qty;
         }
@@ -150,12 +163,18 @@ public class SimplePtf {
             Asset asset = tran.asset();
             Country country;
             String symbol;
+            String figi;
+            String isin;
             if (asset == null) {
                 country = null;
                 symbol = null;
+                figi = null;
+                isin = null;
             } else {
                 country = asset.country();
                 symbol = asset.symbol();
+                figi = asset.countryFigi();
+                isin = asset.isin();
             }
             Currency ccy = tran.ccy();
             BigDecimal netValue = tran.netValue();
@@ -169,8 +188,26 @@ public class SimplePtf {
                 if (tranType.equals(FinTransactionType.FX_BUY) || tranType.equals(FinTransactionType.FX_SELL)) {
                     updateCash(Currency.valueOf(symbol), qty);
                 } else {
-                    Holding holding = updateHolding(country, symbol, qty);
+                    Holding holding = updateHolding(country, symbol, figi, isin, qty);
                     holding.transactions.add(tran);
+                }
+            } else {
+                if (tranType.equals(FinTransactionType.TRANSFORMATION)) {
+                    if (getHolding(country, symbol) == null) {
+                        if ((figi != null || isin != null)) {
+                            Holding oldHolding = holdings
+                                    .stream()
+                                    .filter(h -> (figi != null && figi.equals(h.getCountryFigi())) || (isin != null && isin.equals(h.getIsin())))
+                                    .findAny()
+                                    .orElseThrow();
+                            if (!oldHolding.getSymbol().equals(symbol)) {
+                                Holding newHolding = updateHolding(country, symbol, figi, isin, oldHolding.getQty());
+                                updateHolding(oldHolding.getCountry(), oldHolding.getSymbol(), figi, isin, oldHolding.getQty().negate());
+                                oldHolding.transactions.add(tran);
+                                newHolding.transactions.add(tran);
+                            }
+                        }
+                    }
                 }
             }
             transactions.add(tran);
@@ -194,10 +231,10 @@ public class SimplePtf {
                 .orElse(null);
     }
 
-    private Holding updateHolding(Country country, String symbol, BigDecimal qtyToAdd) {
+    private Holding updateHolding(Country country, String symbol, String figi, String isin, BigDecimal qtyToAdd) {
         Holding holding = getHolding(country, symbol);
         if (holding == null) {
-            holding = new Holding(country, symbol, requireNonNull(qtyToAdd));
+            holding = new Holding(country, symbol, figi, isin, requireNonNull(qtyToAdd));
             holdings.add(holding);
         } else {
             holding.qty = holding.qty.add(qtyToAdd);

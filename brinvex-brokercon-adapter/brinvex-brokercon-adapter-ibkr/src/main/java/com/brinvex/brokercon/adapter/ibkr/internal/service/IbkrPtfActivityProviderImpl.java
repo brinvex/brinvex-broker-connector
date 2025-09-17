@@ -265,6 +265,8 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
 
         List<FinTransaction> corpActions = finTransactionMapper.mapCorporateAction(mergedActStatement.corporateActions());
 
+        List<FinTransaction> symbolChanges = finTransactionMapper.mapSymbolChanges(corpActions, mergedActStatement.priorPeriodPositions());
+
         List<FinTransaction> transfers = finTransactionMapper.mapTransfers(mergedActStatement.transfers());
 
         List<FinTransaction> tcTrades;
@@ -311,7 +313,7 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
             }
         }
 
-        List<FinTransaction> newTrans = Stream.of(corpActions, cashTrans, trades, transfers, tcTrades)
+        List<FinTransaction> newTrans = Stream.of(corpActions, cashTrans, trades, transfers, symbolChanges, tcTrades)
                 .flatMap(Collection::stream)
                 .filter(t -> {
                     LocalDate date = t.date();
