@@ -108,7 +108,10 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
         Currency pcy = account.ccy();
 
         LocalDate prevAccountIdValidToIncl = null;
-        for (IbkrAccount.MigratedAccount migratedAccount : account.migratedAccounts()) {
+        List<IbkrAccount.MigratedAccount> migratedAccounts = account.migratedAccounts();
+        for (int i = 0, migratedAccountsSize = migratedAccounts.size(); i < migratedAccountsSize; i++) {
+            LocalDate nextAccountIdValidFromIncl = i == migratedAccountsSize - 1 ? account.externalIdValidFromIncl() : migratedAccounts.get(i + 1).externalIdValidFromIncl();
+            IbkrAccount.MigratedAccount migratedAccount = migratedAccounts.get(i);
             LocalDate progressFromDateIncl = maxDate(fromDateIncl, migratedAccount.externalIdValidFromIncl());
             LocalDate progressToDateIncl = minDate(toDateIncl, migratedAccount.externalIdValidToIncl());
             if (!progressFromDateIncl.isAfter(progressToDateIncl)) {
@@ -119,6 +122,7 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
                         progressFromDateIncl,
                         progressToDateIncl,
                         prevAccountIdValidToIncl == null ? null : prevAccountIdValidToIncl.plusDays(1),
+                        nextAccountIdValidFromIncl,
                         staleTolerance,
                         online
                 );
@@ -142,6 +146,7 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
                         progressFromDateIncl,
                         progressToDateIncl,
                         prevAccountIdValidToIncl == null ? null : prevAccountIdValidToIncl.plusDays(1),
+                        null,
                         staleTolerance,
                         online
                 );
@@ -156,7 +161,8 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
         }
         if (navs.isEmpty()) {
             throw new IllegalStateException(
-                    "Missing PtfProgress data: externalId=%s, fromDayIncl=%s, toDayIncl=%s, credentials=%s");
+                    "Missing PtfProgress data: account=%s, fromDayIncl=%s, toDayIncl=%s"
+                            .formatted(account, fromDateIncl, toDateIncl));
         }
         trans.sort(comparing(FinTransaction::date));
 
@@ -171,6 +177,7 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
             LocalDate fromDateIncl,
             LocalDate toDateIncl,
             LocalDate otherInternalFlowsFromDateIncl,
+            LocalDate otherInternalFlowsToDateIncl,
             Duration staleTolerance,
             boolean online
     ) {
@@ -320,8 +327,11 @@ public class IbkrPtfActivityProviderImpl implements IbkrPtfActivityProvider {
                     if (date.isBefore(fromDateIncl) || date.isAfter(toDateIncl)) {
                         return false;
                     }
-                    if (otherInternalFlowsFromDateIncl != null) {
-                        if (t.type() == OTHER_INTERNAL_FLOW && date.isBefore(otherInternalFlowsFromDateIncl)) {
+                    if (t.type() == OTHER_INTERNAL_FLOW) {
+                        if (otherInternalFlowsFromDateIncl != null && date.isBefore(otherInternalFlowsFromDateIncl)) {
+                            return false;
+                        }
+                        if (otherInternalFlowsToDateIncl != null && date.isAfter(otherInternalFlowsToDateIncl)) {
                             return false;
                         }
                     }

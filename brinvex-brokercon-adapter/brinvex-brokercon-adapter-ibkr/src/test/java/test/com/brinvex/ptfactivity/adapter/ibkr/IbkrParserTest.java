@@ -12,6 +12,7 @@ import com.brinvex.brokercon.adapter.ibkr.api.model.statement.FlexStatement.Acti
 import com.brinvex.brokercon.adapter.ibkr.api.model.statement.FlexStatement.TradeConfirmStatement;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrDms;
 import com.brinvex.brokercon.adapter.ibkr.api.service.IbkrStatementParser;
+import com.brinvex.java.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.slf4j.Logger;
@@ -92,14 +93,14 @@ class IbkrParserTest extends IbkrBaseTest {
         }
     }
 
-    @EnabledIf("account1IsNotNull")
+    @EnabledIf("account2IsNotNull")
     @Test
     void parseTradeConfirm() {
-        assert account1 != null;
+        assert account2 != null;
 
-        IbkrModule ibkrModule = testCtx.withDmsWorkspace("ibkr-dms-stable-20240418").get(IbkrModule.class);
+        IbkrModule ibkrModule = testCtx.withDmsWorkspace("ibkr-dms-stable-20250918").get(IbkrModule.class);
         IbkrDms dms = ibkrModule.dms();
-        List<TradeConfirmDocKey> docKeys = dms.getTradeConfirmDocKeys(account1.externalId(), null, null);
+        List<TradeConfirmDocKey> docKeys = dms.getTradeConfirmDocKeys(account2.externalId(), null, null);
         assertFalse(docKeys.isEmpty());
         IbkrStatementParser parser = ibkrModule.statementParser();
         for (TradeConfirmDocKey docKey : docKeys) {
@@ -113,8 +114,10 @@ class IbkrParserTest extends IbkrBaseTest {
                         AssetCategory cat = tc.assetCategory();
                         AssetSubCategory subCat = tc.assetSubCategory();
                         assertTrue(AssetCategory.STK.equals(cat) && AssetSubCategory.COMMON.equals(subCat)
+                                   || AssetCategory.STK.equals(cat) && AssetSubCategory.ETF.equals(subCat)
                                    || AssetCategory.CASH.equals(cat) && null == subCat
                         );
+                        assertNotNull(StringUtil.stripToNull(tc.underlyingSymbol()));
                     });
 
             try {

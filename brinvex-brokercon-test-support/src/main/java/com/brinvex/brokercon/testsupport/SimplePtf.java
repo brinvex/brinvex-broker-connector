@@ -20,7 +20,6 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 import static java.math.BigDecimal.ZERO;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
@@ -40,11 +39,6 @@ public class SimplePtf {
         private final String countryFigi;
         private final String isin;
         private BigDecimal qty;
-        private final List<FinTransaction> transactions;
-
-        public Holding(Country country, String symbol, String countryFigi, String isin, BigDecimal qty) {
-            this(country, symbol, countryFigi, isin, qty, null);
-        }
 
         @JsonCreator
         public Holding(
@@ -52,15 +46,13 @@ public class SimplePtf {
                 @JsonProperty("symbol") String symbol,
                 @JsonProperty("countryFigi") String countryFigi,
                 @JsonProperty("isin") String isin,
-                @JsonProperty("qty") BigDecimal qty,
-                @JsonProperty("transactions") List<FinTransaction> transactions
+                @JsonProperty("qty") BigDecimal qty
         ) {
             this.country = country;
             this.symbol = symbol;
             this.isin = isin;
             this.qty = qty;
             this.countryFigi = countryFigi;
-            this.transactions = transactions == null ? new ArrayList<>() : new ArrayList<>(transactions);
         }
 
         @Override
@@ -128,11 +120,6 @@ public class SimplePtf {
         return holding == null ? ZERO : holding.qty;
     }
 
-    public List<FinTransaction> getHoldingTransactions(Country country, String symbol) {
-        Holding holding = getHolding(country, symbol);
-        return holding == null ? emptyList() : unmodifiableList(holding.transactions);
-    }
-
     public List<FinTransaction> getTransactions() {
         return unmodifiableList(transactions);
     }
@@ -190,8 +177,7 @@ public class SimplePtf {
                 if (tranType.equals(FinTransactionType.FX_BUY) || tranType.equals(FinTransactionType.FX_SELL)) {
                     updateCash(Currency.valueOf(symbol), qty);
                 } else {
-                    Holding holding = updateHolding(country, symbol, figi, isin, qty);
-                    holding.transactions.add(tran);
+                    updateHolding(country, symbol, figi, isin, qty);
                 }
             } else {
                 /*
@@ -209,10 +195,8 @@ public class SimplePtf {
                             .findAny()
                             .orElseThrow();
                     if (!oldHolding.getSymbol().equals(symbol)) {
-                        Holding newHolding = updateHolding(country, symbol, figi, isin, oldHolding.getQty());
+                        updateHolding(country, symbol, figi, isin, oldHolding.getQty());
                         updateHolding(oldHolding.getCountry(), oldHolding.getSymbol(), figi, isin, oldHolding.getQty().negate());
-                        oldHolding.transactions.add(tran);
-                        newHolding.transactions.add(tran);
                     }
                 }
             }
@@ -237,7 +221,7 @@ public class SimplePtf {
                 .orElse(null);
     }
 
-    private Holding updateHolding(Country country, String symbol, String figi, String isin, BigDecimal qtyToAdd) {
+    private void updateHolding(Country country, String symbol, String figi, String isin, BigDecimal qtyToAdd) {
         Holding holding = getHolding(country, symbol);
         if (holding == null) {
             holding = new Holding(country, symbol, figi, isin, requireNonNull(qtyToAdd));
@@ -245,7 +229,6 @@ public class SimplePtf {
         } else {
             holding.qty = holding.qty.add(qtyToAdd);
         }
-        return holding;
     }
 
     private void updateCash(Currency ccy, BigDecimal moneyToAdd) {

@@ -76,15 +76,22 @@ The _Brinvex Broker Connect_ is released under version 2.0 of the Apache License
 
 #### IBKR - Symbol Discrepancy in Stock Position
 
-A discrepancy may be observed in the display symbols for stock positions, 
-such as those in the German company Siemens (_ISIN: DE0007236101_). 
-When purchased on IBIS, the symbol for Siemens stock may appear 
-as "SIE" in the TWS platform and the Portfolio screen of the Interactive Brokers web application. 
-However, in report statements, including flex statements, the symbol may be listed as "SIEd."
-This inconsistency arises due to the use of the primary exchange symbol in statements, 
-which may differ from the symbol displayed in other parts of the platform. 
+A discrepancy may be observed in the display symbols for stock positions,
+such as those in the German company Siemens (ISIN: DE0007236101).
+When purchased on IBIS, the symbol for Siemens stock may appear as "SIE" in the TWS platform 
+and the Portfolio screen of the Interactive Brokers web application.
+However, in report statements, including flex statements, the symbol may be listed as "SIEd."  
+This inconsistency arises because reports use the primary exchange symbol, 
+which may differ from the one displayed in other parts of the platform. 
 Despite this variation, the stock remains the same, as confirmed by matching ISINs and other details. 
-This behavior is a standard design feature of the IBKR platform.
+This behavior is a standard design feature of the IBKR platform.  
+Starting in 2024, reports have filled not only the attribute _symbol_ but also _underlyingSymbol_, 
+which (for Stocks and ETFs) provides a symbol we prefer for further processing.
+For old items, underlyingSymbol remains blank even when generating fresh reports for past periods. 
+In these cases, the old _symbol_ field is used, but to make it consistent 
+we do some reconciliation in code. It affects only few instruments: 
+- _CSPX.DE -> SXR8.DE_ 
+- _SIEd -> SIE.DE_ 
 
 #### IBKR - Delayed Update Effect
 

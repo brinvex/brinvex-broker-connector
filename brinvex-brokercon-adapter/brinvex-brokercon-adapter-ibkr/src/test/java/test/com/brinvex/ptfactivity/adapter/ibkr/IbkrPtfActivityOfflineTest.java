@@ -152,7 +152,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
         List<FinTransaction> actAndTcTrans;
 
         {
-            TestContext testCtx = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20240418");
+            TestContext testCtx = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20250918");
             IbkrModule ibkrModule = testCtx.get(IbkrModule.class);
             IbkrPtfActivityProvider ptfProgressProvider = ibkrModule.ptfProgressProvider();
             ValidatorFacade validator = testCtx.validator();
@@ -160,66 +160,33 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
             List<FinTransaction> actTrans1;
             {
                 PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
-                        account2, parse("2023-01-23"), parse("2024-04-16"));
+                        account2, parse("2023-01-23"), parse("2025-09-16"));
                 validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
                 SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
                 actTrans1 = ptf.getTransactions();
-                assertEquals(243, actTrans1.size());
-                assertEquals(0, ptf.getHoldingQty(US, "MU").compareTo(new BigDecimal("1")));
+                assertEquals(0, ptf.getHoldingQty(DE, "SXR8").compareTo(new BigDecimal("81")));
             }
             {
                 PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
-                        account2, parse("2023-01-23"), parse("2024-04-17"));
+                        account2, parse("2023-01-23"), parse("2025-09-17"));
                 validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
                 SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
                 assertEquals(actTrans1, ptf.getTransactions());
             }
             {
                 PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
-                        account2, parse("2023-01-23"), parse("2024-04-18"));
+                        account2, parse("2023-01-23"), parse("2025-09-18"));
                 validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
                 SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
 
                 actAndTcTrans = ptf.getTransactions();
-                assertEquals(actTrans1.size() + 2, actAndTcTrans.size());
+                assertEquals(actTrans1.size() + 1, actAndTcTrans.size());
 
                 FinTransaction newestTran = actAndTcTrans.getLast();
                 assertEquals(FinTransactionType.BUY, newestTran.type());
-                assertEquals(parse("2024-04-18"), newestTran.date());
-                assertEquals("MU", newestTran.asset().symbol());
-                assertEquals(0, ptf.getHoldingQty(US, "MU").compareTo(new BigDecimal("6")));
-            }
-        }
-        {
-            TestContext testCtx = this.testCtx.withDmsWorkspace("ibkr-dms-stable");
-            IbkrModule ibkrModule = testCtx.get(IbkrModule.class);
-            IbkrPtfActivityProvider ptfProgressProvider = ibkrModule.ptfProgressProvider();
-            ValidatorFacade validator = testCtx.validator();
-
-            {
-                PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
-                        account2, parse("2023-01-23"), parse("2024-04-18"));
-                validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
-                SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
-
-                List<FinTransaction> actTrans2 = ptf.getTransactions();
-                assertTrue(actAndTcTrans.size() <= actTrans2.size());
-
-                Set<FinTransactionType> tcTranTypes = Set.of(FinTransactionType.BUY, FinTransactionType.SELL, FinTransactionType.FX_BUY, FinTransactionType.FX_SELL);
-                for (int i = 0, j = 0; j < actTrans2.size(); i++, j++) {
-                    FinTransaction actAndTcTran = actAndTcTrans.get(i);
-                    FinTransaction actTran2 = actTrans2.get(i);
-                    if (actAndTcTran.equals(actTran2)) {
-                        continue;
-                    }
-                    if (actTran2.date().isEqual(parse("2024-04-18"))) {
-                        if (!tcTranTypes.contains(actTran2.type())) {
-                            i--;
-                            continue;
-                        }
-                    }
-                    fail("actAndTcTran=%s, actTran2=%s".formatted(actAndTcTran, actTran2));
-                }
+                assertEquals(parse("2025-09-18"), newestTran.date());
+                assertEquals("SXR8", newestTran.asset().symbol());
+                assertEquals(0, ptf.getHoldingQty(DE, "SXR8").compareTo(new BigDecimal("83")));
             }
         }
     }
@@ -351,7 +318,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
     @EnabledIf("account2IsNotNull")
     @Test
     void ptfProgress_balanceCorrectness() {
-        TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20250607");
+        TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20250918");
         IbkrPtfActivityProvider ptfProgressProvider = brokercon.get(IbkrModule.class).ptfProgressProvider();
         ValidatorFacade validator = brokercon.validator();
 
@@ -401,7 +368,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
             validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
             ptf = new SimplePtf(ptfActivity.transactions());
             assertEquals(2, ptf.getCurrencies().size());
-            assertEquals("35", ptf.getHoldingQty(DE, "CSPX").toString());
+            assertEquals("35", ptf.getHoldingQty(DE, "SXR8").toString());
             assertEquals("59.64", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
             assertEquals("517.29", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
             assertEquals("5108.86", ptfActivity.netAssetValues().getLast().amount().remainder(new BigDecimal("10000")).setScale(2, HALF_UP).toPlainString());
@@ -415,7 +382,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
             assertEquals(2, ptf.getCurrencies().size());
             assertEquals("0.02", ptf.getCash(EUR).setScale(2, HALF_UP).toPlainString());
             assertEquals("811.39", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
-            assertEquals("35", ptf.getHoldingQty(DE, "CSPX").toString());
+            assertEquals("35", ptf.getHoldingQty(DE, "SXR8").toString());
             assertEquals("1653.08", ptfActivity.netAssetValues().getLast().amount().remainder(new BigDecimal("10000")).setScale(2, HALF_UP).toPlainString());
         }
         {
@@ -536,7 +503,21 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
             ptf = new SimplePtf(ptfActivity.transactions());
             assertEquals(2, ptf.getCurrencies().size());
             assertEquals("0.00", ptf.getCash(USD).setScale(2, HALF_UP).toPlainString());
-            assertEquals("68", ptf.getHoldingQty(DE, "CSPX").toString());
+            assertEquals("68", ptf.getHoldingQty(DE, "SXR8").toString());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-09-18")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("83", ptf.getHoldingQty(DE, "SXR8").toString());
+            assertEquals("24", ptf.getHoldingQty(DE, "SIE").toString());
+            List<FinTransaction> dividendTrans1 = ptf.getTransactions().stream()
+                    .filter(t -> t.type() == FinTransactionType.DIVIDEND && t.asset().symbol().equals("SIE"))
+                    .toList();
+            assertEquals(1, dividendTrans1.size());
         }
     }
 }

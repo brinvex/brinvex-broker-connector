@@ -25,6 +25,7 @@ public class TradeBuilder {
     private String figi;
     private String isin;
     private String listingExchange;
+    private String underlyingSymbol;
     private String tradeID;
     private LocalDate reportDate;
     private LocalDate tradeDate;
@@ -55,6 +56,7 @@ public class TradeBuilder {
         Assert.notNull(figi);
         Assert.notNull(isin);
         Assert.notNull(listingExchange);
+        Assert.notNull(underlyingSymbol);
         Assert.notNull(tradeID);
         Assert.notNull(reportDate);
         Assert.notNull(tradeDate);
@@ -84,6 +86,7 @@ public class TradeBuilder {
                 figi,
                 isin,
                 listingExchange,
+                underlyingSymbol,
                 tradeID,
                 reportDate,
                 tradeDate,
@@ -154,6 +157,11 @@ public class TradeBuilder {
 
     public TradeBuilder listingExchange(String listingExchange) {
         this.listingExchange = listingExchange;
+        return this;
+    }
+
+    public TradeBuilder underlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
         return this;
     }
 

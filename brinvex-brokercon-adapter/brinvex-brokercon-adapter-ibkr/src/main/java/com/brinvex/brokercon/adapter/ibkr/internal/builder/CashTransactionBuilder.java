@@ -26,6 +26,7 @@ public class CashTransactionBuilder {
     private String figi;
     private String isin;
     private String listingExchange;
+    private String underlyingSymbol;
     private CashTransactionType type;
     private String transactionID;
     private String actionID;
@@ -43,6 +44,7 @@ public class CashTransactionBuilder {
         Assert.notNull(figi);
         Assert.notNull(isin);
         Assert.notNull(listingExchange);
+        Assert.notNull(underlyingSymbol);
         Assert.notNull(type);
         Assert.notNullNotBlank(transactionID);
         Assert.notNull(actionID);
@@ -63,6 +65,7 @@ public class CashTransactionBuilder {
                 figi,
                 isin,
                 listingExchange,
+                underlyingSymbol,
                 type,
                 transactionID,
                 actionID,
@@ -129,6 +132,11 @@ public class CashTransactionBuilder {
 
     public CashTransactionBuilder listingExchange(String listingExchange) {
         this.listingExchange = listingExchange;
+        return this;
+    }
+
+    public CashTransactionBuilder underlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
         return this;
     }
 

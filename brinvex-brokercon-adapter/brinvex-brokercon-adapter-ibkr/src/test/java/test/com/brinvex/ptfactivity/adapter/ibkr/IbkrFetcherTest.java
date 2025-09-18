@@ -30,7 +30,7 @@ class IbkrFetcherTest extends IbkrBaseTest {
 
         IbkrAccount.Credentials credentials = account2.credentials();
         {
-            String content = fetcher.fetchFlexStatement(credentials.token(), credentials.activityFlexQueryId(), 1, ofSeconds(6));
+            String content = fetcher.fetchFlexStatement(credentials.token(), credentials.activityFlexQueryId(), 2, ofSeconds(6));
             ActivityStatement actStatement = parser.parseActivityStatement(content);
             assertEquals(account2.externalId(), actStatement.accountId());
         }

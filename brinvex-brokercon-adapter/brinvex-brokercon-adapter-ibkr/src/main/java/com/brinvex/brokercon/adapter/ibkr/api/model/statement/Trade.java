@@ -17,6 +17,7 @@ public record Trade(
         String figi,
         String isin,
         String listingExchange,
+        String underlyingSymbol,
         String tradeID,
         LocalDate reportDate,
         LocalDate tradeDate,

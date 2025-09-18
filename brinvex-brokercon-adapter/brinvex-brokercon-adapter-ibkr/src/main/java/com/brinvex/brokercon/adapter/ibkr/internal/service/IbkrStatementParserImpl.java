@@ -116,6 +116,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .figi(getAttrValue(e, TradeQN.figi))
                             .isin(getAttrValue(e, TradeQN.isin))
                             .listingExchange(getAttrValue(e, TradeQN.listingExchange))
+                            .underlyingSymbol(getAttrValue(e, TradeQN.underlyingSymbol))
                             .tradeID(getAttrValue(e, TradeQN.tradeID))
                             .reportDate(parseDate(getAttrValue(e, TradeQN.reportDate)))
                             .tradeDate(parseDate(getAttrValue(e, TradeQN.tradeDate)))
@@ -142,6 +143,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .fxRateToBase(getAttrBigDecimal(e, CashTransactionQN.fxRateToBase))
                             .symbol(getAttrValue(e, CashTransactionQN.symbol))
                             .listingExchange(getAttrValue(e, CashTransactionQN.listingExchange))
+                            .underlyingSymbol(getAttrValue(e, CashTransactionQN.underlyingSymbol))
                             .assetCategory(parseEnum(AssetCategory::fromValue, getAttrValue(e, CashTransactionQN.assetCategory)))
                             .assetSubCategory(parseEnum(AssetSubCategory::fromValue, getAttrValue(e, CashTransactionQN.subCategory)))
                             .figi(getAttrValue(e, CashTransactionQN.figi))
@@ -174,6 +176,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .figi(getAttrValue(e, CorporateActionQN.figi))
                             .isin(getAttrValue(e, CorporateActionQN.isin))
                             .listingExchange(getAttrValue(e, CorporateActionQN.listingExchange))
+                            .underlyingSymbol(getAttrValue(e, CorporateActionQN.underlyingSymbol))
                             .issuerCountryCode(getAttrValue(e, CorporateActionQN.issuerCountryCode))
                             .extraDateTimeStr(getAttrValue(e, CorporateActionQN.dateTime))
                             .transactionId(getAttrValue(e, CorporateActionQN.transactionID))
@@ -219,9 +222,10 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .assetCategory(parseEnum(AssetCategory::fromValue, getAttrValue(e, PriorPeriodPositionQN.assetCategory)))
                             .assetSubCategory(parseEnum(AssetSubCategory::fromValue, getAttrValue(e, PriorPeriodPositionQN.subCategory)))
                             .symbol(getAttrValue(e, PriorPeriodPositionQN.symbol))
-                            .description(getAttrValue(e, PriorPeriodPositionQN.symbol))
+                            .description(getAttrValue(e, PriorPeriodPositionQN.description))
                             .isin(getAttrValue(e, PriorPeriodPositionQN.isin))
                             .figi(getAttrValue(e, PriorPeriodPositionQN.figi))
+                            .underlyingSymbol(getAttrValue(e, PriorPeriodPositionQN.underlyingSymbol))
                             .date(parseDate(getAttrValue(e, PriorPeriodPositionQN.date)))
                             .listingExchange(getAttrValue(e, PriorPeriodPositionQN.listingExchange))
                             .build());
@@ -278,6 +282,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
                             .figi(getAttrValue(e, TradeConfirmQN.figi))
                             .isin(getAttrValue(e, TradeConfirmQN.isin))
                             .listingExchange(getAttrValue(e, TradeConfirmQN.listingExchange))
+                            .underlyingSymbol(getAttrValue(e, TradeConfirmQN.underlyingSymbol))
                             .tradeID(getAttrValue(e, TradeConfirmQN.tradeID))
                             .reportDate(parseDate(getAttrValue(e, TradeConfirmQN.reportDate)))
                             .tradeDate(parseDate(getAttrValue(e, TradeConfirmQN.tradeDate)))
@@ -365,6 +370,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName description = new QName("description");
         static final QName symbol = new QName("symbol");
         static final QName listingExchange = new QName("listingExchange");
+        static final QName underlyingSymbol = new QName("underlyingSymbol");
         static final QName assetCategory = new QName("assetCategory");
         static final QName subCategory = new QName("subCategory");
         static final QName figi = new QName("figi");
@@ -391,6 +397,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName figi = new QName("figi");
         static final QName isin = new QName("isin");
         static final QName listingExchange = new QName("listingExchange");
+        static final QName underlyingSymbol = new QName("underlyingSymbol");
         static final QName tradeID = new QName("tradeID");
         static final QName reportDate = new QName("reportDate");
         static final QName dateTime = new QName("dateTime");
@@ -424,6 +431,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName figi = new QName("figi");
         static final QName isin = new QName("isin");
         static final QName listingExchange = new QName("listingExchange");
+        static final QName underlyingSymbol = new QName("underlyingSymbol");
         static final QName tradeID = new QName("tradeID");
         static final QName reportDate = new QName("reportDate");
         static final QName dateTime = new QName("dateTime");
@@ -455,6 +463,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName figi = new QName("figi");
         static final QName isin = new QName("isin");
         static final QName listingExchange = new QName("listingExchange");
+        static final QName underlyingSymbol = new QName("underlyingSymbol");
         static final QName issuerCountryCode = new QName("issuerCountryCode");
         static final QName reportDate = new QName("reportDate");
         static final QName dateTime = new QName("dateTime");
@@ -485,6 +494,7 @@ public class IbkrStatementParserImpl implements IbkrStatementParser {
         static final QName description = new QName("description");
         static final QName isin = new QName("isin");
         static final QName figi = new QName("figi");
+        static final QName underlyingSymbol = new QName("underlyingSymbol");
         static final QName date = new QName("date");
         static final QName listingExchange = new QName("listingExchange");
     }

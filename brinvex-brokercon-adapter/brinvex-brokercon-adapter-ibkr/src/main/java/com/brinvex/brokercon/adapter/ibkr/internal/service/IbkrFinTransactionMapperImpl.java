@@ -50,6 +50,7 @@ import static com.brinvex.fintypes.enu.FinTransactionType.SELL;
 import static com.brinvex.fintypes.enu.FinTransactionType.SYMBOL_CHANGE;
 import static com.brinvex.fintypes.enu.FinTransactionType.TRANSFORMATION;
 import static com.brinvex.fintypes.enu.FinTransactionType.WITHDRAWAL;
+import static com.brinvex.java.NullUtil.coalesce;
 import static com.brinvex.java.StringUtil.stripToNull;
 import static java.math.BigDecimal.ZERO;
 import static java.util.Comparator.comparing;
@@ -61,6 +62,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
 
     private static final DateTimeFormatter idDf = DateTimeFormatter.ofPattern("yyyyMMdd");
 
+    @SuppressWarnings("DuplicateExpressions")
     @Override
     public List<FinTransaction> mapCashTransactions(List<CashTransaction> cashTrans) {
 
@@ -131,14 +133,15 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                         default -> throw new AssertionError("Unreachable");
                     };
 
+                    Country country = detectCountryByExchange(cashTran.listingExchange());
                     yield FinTransaction.builder()
                             .type(FinTransactionType.DIVIDEND)
                             .externalType(extraTranType)
                             .asset(Asset.builder()
                                     .type(toInstType(cashTran.assetCategory(), cashTran.assetSubCategory()))
                                     .extraType("%s/%s".formatted(cashTran.assetCategory(), cashTran.assetSubCategory()))
-                                    .country(detectCountryByExchange(cashTran.listingExchange()))
-                                    .symbol(stripToNull(cashTran.symbol()))
+                                    .country(country)
+                                    .symbol(reconcileSymbol(country, cashTran.symbol(), cashTran.underlyingSymbol(), cashTran.assetSubCategory(), cashTran.reportDate()))
                                     .countryFigi(stripToNull(cashTran.figi()))
                                     .isin(stripToNull(cashTran.isin()))
                                     .build())
@@ -150,14 +153,15 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                 }
                 case WITHHOLDING_TAX -> {
                     Assert.isTrue(cashTran.settleDate().isBefore(cashTran.reportDate()));
+                    Country country = detectCountryByExchange(cashTran.listingExchange());
                     yield FinTransaction.builder()
                             .type(FinTransactionType.TAX)
                             .externalType(WITHHOLDING_TAX.name())
                             .asset(Asset.builder()
                                     .type(toInstType(cashTran.assetCategory(), cashTran.assetSubCategory()))
                                     .extraType("%s/%s".formatted(cashTran.assetCategory(), cashTran.assetSubCategory()))
-                                    .country(detectCountryByExchange(cashTran.listingExchange()))
-                                    .symbol(stripToNull(cashTran.symbol()))
+                                    .country(country)
+                                    .symbol(reconcileSymbol(country, cashTran.symbol(), cashTran.underlyingSymbol(), cashTran.assetSubCategory(), cashTran.reportDate()))
                                     .countryFigi(stripToNull(cashTran.figi()))
                                     .isin(stripToNull(cashTran.isin()))
                                     .build())
@@ -269,6 +273,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     };
                     case STK -> {
                         Assert.zero(trade.taxes());
+                        Country country = detectCountryByExchange(trade.listingExchange());
                         yield FinTransaction.builder()
                                 .type(switch (trade.buySell()) {
                                     case BUY -> BUY;
@@ -278,8 +283,8 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                                 .asset(Asset.builder()
                                         .type(toInstType(trade.assetCategory(), trade.assetSubCategory()))
                                         .extraType("%s/%s".formatted(trade.assetCategory(), trade.assetSubCategory()))
-                                        .country(detectCountryByExchange(trade.listingExchange()))
-                                        .symbol(stripToNull(trade.symbol()))
+                                        .country(country)
+                                        .symbol(reconcileSymbol(country, trade.symbol(), trade.underlyingSymbol(), trade.assetSubCategory(), trade.tradeDate()))
                                         .countryFigi(stripToNull(trade.figi()))
                                         .isin(stripToNull(trade.isin()))
                                         .build())
@@ -301,12 +306,13 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     Assert.equal(grossValue, trade.tradeMoney().negate());
                     Assert.equal(grossValue, trade.netCash());
                     Assert.zero(trade.taxes());
+                    Country country = detectCountryByExchange(trade.listingExchange());
                     yield FinTransaction.builder()
                             .type(FinTransactionType.SELL)
                             .asset(Asset.builder()
                                     .type(InstrumentType.STK)
-                                    .country(detectCountryByExchange(trade.listingExchange()))
-                                    .symbol(stripToNull(trade.symbol()))
+                                    .country(country)
+                                    .symbol(reconcileSymbol(country, trade.symbol(), trade.underlyingSymbol(), trade.assetSubCategory(), trade.tradeDate()))
                                     .countryFigi(stripToNull(trade.figi()))
                                     .isin(stripToNull(trade.isin()))
                                     .build())
@@ -351,6 +357,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                         .isin(tradeConfirm.isin())
                         .figi(tradeConfirm.figi())
                         .listingExchange(tradeConfirm.listingExchange())
+                        .underlyingSymbol(tradeConfirm.underlyingSymbol())
                         .tradeID(tradeConfirm.tradeID())
                         .reportDate(tradeConfirm.reportDate())
                         .extraDateTimeStr(tradeConfirm.extraDateTimeStr())
@@ -383,11 +390,12 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
         SequencedMap<String, FinTransaction> resultTrans = new LinkedHashMap<>();
 
         for (CorporateAction corpAction : corpActions) {
+            Country country = Country.valueOf(corpAction.issuerCountryCode());
             Asset asset = Asset.builder()
                     .type(toInstType(corpAction.assetCategory(), corpAction.assetSubCategory()))
                     .extraType("%s/%s".formatted(corpAction.assetCategory(), corpAction.assetSubCategory()))
-                    .country(corpAction.issuerCountryCode())
-                    .symbol(stripToNull(corpAction.symbol()))
+                    .country(country)
+                    .symbol(reconcileSymbol(country, corpAction.symbol(), corpAction.underlyingSymbol(), corpAction.assetSubCategory(), corpAction.reportDate()))
                     .isin(stripToNull(corpAction.isin()))
                     .countryFigi(stripToNull(corpAction.figi()))
                     .build();
@@ -449,15 +457,21 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
     public List<FinTransaction> mapSymbolChanges(Collection<FinTransaction> corpActions, List<PriorPeriodPosition> priorPeriodPositions) {
         Map<String, Map<LocalDate, List<FinTransaction>>> figis2CorpActions = corpActions
                 .stream()
+                .filter(ft -> ft.asset().countryFigi() != null && ft.asset().countryFigi().isBlank())
                 .collect(groupingBy(ft -> ft.asset().countryFigi(), groupingBy(FinTransaction::date)));
+        Map<String, Map<LocalDate, List<FinTransaction>>> isins2CorpActions = corpActions
+                .stream()
+                .filter(ft -> ft.asset().isin() != null && ft.asset().isin().isBlank())
+                .collect(groupingBy(ft -> ft.asset().isin(), groupingBy(FinTransaction::date)));
 
         Map<String, Map<String, List<PriorPeriodPosition>>> figis2Symbols2PriorPeriodPositions = priorPeriodPositions
                 .stream()
-                .collect(groupingBy(PriorPeriodPosition::figi, groupingBy(PriorPeriodPosition::symbol)));
+                .filter(ppp -> (ppp.figi() != null && !ppp.figi().isBlank()) || (ppp.isin() != null && !ppp.isin().isBlank()))
+                .collect(groupingBy(ppp -> coalesce(stripToNull(ppp.figi()), stripToNull(ppp.isin())), groupingBy(PriorPeriodPosition::symbol)));
 
         List<FinTransaction> finTransactions = new ArrayList<>();
         for (Entry<String, Map<String, List<PriorPeriodPosition>>> e : figis2Symbols2PriorPeriodPositions.entrySet()) {
-            String figi = e.getKey();
+            String figiOrIsin = e.getKey();
             Map<String, List<PriorPeriodPosition>> figiPriorPeriodPositions = e.getValue();
             int symbolSize = figiPriorPeriodPositions.size();
             if (symbolSize != 1) {
@@ -487,7 +501,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                         throw new IllegalStateException(
                                 "Expecting subsequent dates: %s, %s".formatted(symbol1LastPosition, symbol2FirstPosition));
                     }
-                    Map<LocalDate, List<FinTransaction>> figiCorpActions = figis2CorpActions.get(figi);
+                    Map<LocalDate, List<FinTransaction>> figiCorpActions = figis2CorpActions.get(figiOrIsin);
                     boolean corpActionFound = false;
                     if (figiCorpActions != null) {
                         LocalDate d1 = oldPosition.date();
@@ -507,6 +521,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     Assert.isTrue(oldPosition.assetSubCategory().equals(newPosition.assetSubCategory()));
                     Assert.isTrue(oldPosition.currency().equals(newPosition.currency()));
 
+                    Country country = detectCountryByExchange(newPosition.listingExchange());
                     finTransactions.add(FinTransaction.builder()
                             .type(SYMBOL_CHANGE)
                             .date(newPosition.date())
@@ -516,9 +531,9 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             .price(null)
                             .asset(Asset.builder()
                                     .type(toInstType(newPosition.assetCategory(), newPosition.assetSubCategory()))
-                                    .countryFigi(figi)
-                                    .symbol(newPosition.symbol())
-                                    .country(detectCountryByExchange(newPosition.listingExchange()))
+                                    .countryFigi(figiOrIsin)
+                                    .symbol(reconcileSymbol(country, newPosition.symbol(), newPosition.underlyingSymbol(), newPosition.assetSubCategory(), newPosition.date()))
+                                    .country(country)
                                     .isin(newPosition.isin())
                                     .name(newPosition.description())
                                     .extraType("%s/%s".formatted(newPosition.assetCategory(), newPosition.assetSubCategory()))
@@ -529,12 +544,12 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             .settleDate(newPosition.date())
                             .groupId(null)
                             .externalId("SYMBOL_CHANGE_%s/%s/%s->%s".formatted(
-                                    newPosition.date(), figi, oldPosition.symbol(), newPosition.symbol()))
+                                    newPosition.date(), figiOrIsin, oldPosition.symbol(), newPosition.symbol()))
                             .externalType("SYMBOL_CHANGE")
                             .externalDetail("%s, %s".formatted(oldPosition, newPosition))
                             .build());
                 } else {
-                    throw new IllegalStateException("Expecting max 2 priorPeriodPositions, got %s for figi=%s, %s".formatted(symbolSize, figi, figiPriorPeriodPositions.keySet()));
+                    throw new IllegalStateException("Expecting max 2 priorPeriodPositions, got %s for figi=%s, %s".formatted(symbolSize, figiOrIsin, figiPriorPeriodPositions.keySet()));
 
                 }
             }
@@ -580,7 +595,29 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
         return resultTrans;
     }
 
-    private Country detectCountryByExchange(String listingExchange) {
+    private static String reconcileSymbol(Country country, String symbol, String underlyingSymbol, AssetSubCategory assetSubCategory, LocalDate date) {
+        underlyingSymbol = stripToNull(underlyingSymbol);
+        if (underlyingSymbol != null) {
+            return underlyingSymbol;
+        }
+        if (symbol == null || symbol.isBlank()) {
+            return null;
+        }
+        if (country == Country.DE && symbol.endsWith("d")) {
+            return symbol.substring(0, symbol.length() - 1);
+        }
+        if (AssetSubCategory.ETF == assetSubCategory) {
+            if ("CSPX".equals(symbol)) {
+                //Since "2024-09-06" there is underlyingSymbol="SXR8" when symbol="CSPX"
+                if (date.isBefore(LocalDate.of(2024, 9, 6))) {
+                    return "SXR8";
+                }
+            }
+        }
+        return symbol;
+    }
+
+    private static Country detectCountryByExchange(String listingExchange) {
         return listingExchange == null || listingExchange.isBlank() ? null : switch (listingExchange) {
             case "NYSE", "NASDAQ" -> Country.US;
             case "IBIS", "IBIS2" -> Country.DE;
@@ -588,27 +625,27 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
         };
     }
 
-    private String getId(CashTransaction cashTran) {
+    private static String getId(CashTransaction cashTran) {
         return "CT/%s/%s".formatted(
                 cashTran.reportDate().format(idDf),
                 cashTran.transactionID()
         );
     }
 
-    private String getId(CorporateAction corpAction) {
+    private static String getId(CorporateAction corpAction) {
         return "CA/%s/%s".formatted(
                 corpAction.reportDate().format(idDf),
                 corpAction.actionID()
         );
     }
 
-    private String getId(Trade trade) {
+    private static String getId(Trade trade) {
         return "T/%s/%s/%s".formatted(
                 trade.reportDate().format(idDf), trade.tradeID(), trade.ibOrderID()
         );
     }
 
-    public InstrumentType toInstType(AssetCategory assetCategory, AssetSubCategory assetSubCategory) {
+    private static InstrumentType toInstType(AssetCategory assetCategory, AssetSubCategory assetSubCategory) {
         return switch (assetCategory) {
             case null -> null;
             case STK -> switch (assetSubCategory) {

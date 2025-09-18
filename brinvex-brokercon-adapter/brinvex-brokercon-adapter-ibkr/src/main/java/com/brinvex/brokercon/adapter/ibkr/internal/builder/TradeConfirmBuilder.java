@@ -25,6 +25,7 @@ public class TradeConfirmBuilder {
     private String figi;
     private String isin;
     private String listingExchange;
+    private String underlyingSymbol;
     private String tradeID;
     private LocalDate reportDate;
     private LocalDate tradeDate;
@@ -53,6 +54,7 @@ public class TradeConfirmBuilder {
         Assert.notNull(figi);
         Assert.notNull(isin);
         Assert.notNull(listingExchange);
+        Assert.notNullNotBlank(underlyingSymbol);
         Assert.notNullNotBlank(tradeID);
         Assert.notNull(reportDate);
         Assert.notNull(tradeDate);
@@ -84,6 +86,7 @@ public class TradeConfirmBuilder {
                 this.figi,
                 this.isin,
                 this.listingExchange,
+                this.underlyingSymbol,
                 this.tradeID,
                 this.reportDate,
                 this.tradeDate,
@@ -152,6 +155,11 @@ public class TradeConfirmBuilder {
 
     public TradeConfirmBuilder listingExchange(String listingExchange) {
         this.listingExchange = listingExchange;
+        return this;
+    }
+
+    public TradeConfirmBuilder underlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
         return this;
     }
 

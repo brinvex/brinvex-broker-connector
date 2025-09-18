@@ -28,6 +28,7 @@ public class CorporateActionBuilder {
     private String figi;
     private String isin;
     private String listingExchange;
+    private String underlyingSymbol;
     private String issuerCountryCode;
     private String extraDateTimeStr;
     private String transactionId;
@@ -51,6 +52,7 @@ public class CorporateActionBuilder {
         Assert.notNullNotBlank(figi);
         Assert.notNullNotBlank(isin);
         Assert.notNullNotBlank(listingExchange);
+        Assert.notNull(underlyingSymbol);
         Assert.notNullNotBlank(issuerCountryCode);
         Assert.notNullNotBlank(extraDateTimeStr);
         Assert.notNullNotBlank(transactionId);
@@ -73,6 +75,7 @@ public class CorporateActionBuilder {
                 this.figi,
                 this.isin,
                 this.listingExchange,
+                this.underlyingSymbol,
                 this.issuerCountryCode,
                 this.extraDateTimeStr,
                 this.transactionId,
@@ -156,6 +159,11 @@ public class CorporateActionBuilder {
 
     public CorporateActionBuilder listingExchange(String listingExchange) {
         this.listingExchange = listingExchange;
+        return this;
+    }
+
+    public CorporateActionBuilder underlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
         return this;
     }
 

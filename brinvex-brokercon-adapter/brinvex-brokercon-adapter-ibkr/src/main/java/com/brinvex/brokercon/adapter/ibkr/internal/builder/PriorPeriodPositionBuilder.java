@@ -17,6 +17,7 @@ public class PriorPeriodPositionBuilder {
     private String description;
     private String isin;
     private String figi;
+    private String underlyingSymbol;
     private LocalDate date;
     private String listingExchange;
 
@@ -27,7 +28,7 @@ public class PriorPeriodPositionBuilder {
         Assert.notNullNotBlank(symbol);
         Assert.notNullNotBlank(description);
         Assert.notNullNotBlank(isin);
-        Assert.notNullNotBlank(figi);
+        Assert.notNull(underlyingSymbol);
         Assert.notNull(date);
 
         return new PriorPeriodPosition(
@@ -38,6 +39,7 @@ public class PriorPeriodPositionBuilder {
                 description,
                 isin,
                 figi,
+                underlyingSymbol,
                 date,
                 listingExchange
         );
@@ -75,6 +77,11 @@ public class PriorPeriodPositionBuilder {
 
     public PriorPeriodPositionBuilder figi(String figi) {
         this.figi = figi;
+        return this;
+    }
+
+    public PriorPeriodPositionBuilder underlyingSymbol(String underlyingSymbol) {
+        this.underlyingSymbol = underlyingSymbol;
         return this;
     }
 

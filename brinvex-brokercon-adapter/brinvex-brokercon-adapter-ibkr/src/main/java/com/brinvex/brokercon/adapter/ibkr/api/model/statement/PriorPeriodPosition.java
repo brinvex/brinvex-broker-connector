@@ -12,6 +12,7 @@ public record PriorPeriodPosition(
         String description,
         String isin,
         String figi,
+        String underlyingSymbol,
         LocalDate date,
         String listingExchange
 ) {

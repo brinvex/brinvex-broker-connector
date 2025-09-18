@@ -23,6 +23,7 @@ public record CorporateAction(
         String figi,
         String isin,
         String listingExchange,
+        String underlyingSymbol,
         String issuerCountryCode,
         String extraDateTimeStr,
         String transactionId,

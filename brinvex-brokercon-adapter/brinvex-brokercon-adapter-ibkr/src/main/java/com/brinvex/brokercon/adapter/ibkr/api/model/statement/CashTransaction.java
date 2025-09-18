@@ -18,6 +18,7 @@ public record CashTransaction(
         String figi,
         String isin,
         String listingExchange,
+        String underlyingSymbol,
         CashTransactionType type,
         String transactionID,
         String actionID,
