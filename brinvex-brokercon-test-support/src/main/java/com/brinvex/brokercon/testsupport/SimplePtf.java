@@ -5,6 +5,7 @@ import com.brinvex.fintypes.enu.Currency;
 import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.fintypes.enu.FinTransactionType;
+import com.brinvex.java.validation.Assert;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -86,6 +87,7 @@ public class SimplePtf {
         public String getIsin() {
             return isin;
         }
+
         public BigDecimal getQty() {
             return qty;
         }
@@ -192,21 +194,25 @@ public class SimplePtf {
                     holding.transactions.add(tran);
                 }
             } else {
-                if (tranType.equals(FinTransactionType.TRANSFORMATION)) {
-                    if (getHolding(country, symbol) == null) {
-                        if ((figi != null || isin != null)) {
-                            Holding oldHolding = holdings
-                                    .stream()
-                                    .filter(h -> (figi != null && figi.equals(h.getCountryFigi())) || (isin != null && isin.equals(h.getIsin())))
-                                    .findAny()
-                                    .orElseThrow();
-                            if (!oldHolding.getSymbol().equals(symbol)) {
-                                Holding newHolding = updateHolding(country, symbol, figi, isin, oldHolding.getQty());
-                                updateHolding(oldHolding.getCountry(), oldHolding.getSymbol(), figi, isin, oldHolding.getQty().negate());
-                                oldHolding.transactions.add(tran);
-                                newHolding.transactions.add(tran);
-                            }
-                        }
+                /*
+                If qty != 0, then there must be 2 subsequent grouped SYMBOL_CHANGE transactions with opposite quantities.
+                They are processed as a regular e.g. TRANSFORMATION transactions.
+                If qty == 0 for SYMBOL_CHANGE transaction, it means that we do not know the qty of old holding
+                - so we need it first using other identifier (figi or isin).
+                 */
+                if (tranType.equals(FinTransactionType.SYMBOL_CHANGE)) {
+                    Assert.isTrue(getHolding(country, symbol) == null);
+                    Assert.isTrue(figi != null || isin != null);
+                    Holding oldHolding = holdings
+                            .stream()
+                            .filter(h -> (figi != null && figi.equals(h.getCountryFigi())) || (isin != null && isin.equals(h.getIsin())))
+                            .findAny()
+                            .orElseThrow();
+                    if (!oldHolding.getSymbol().equals(symbol)) {
+                        Holding newHolding = updateHolding(country, symbol, figi, isin, oldHolding.getQty());
+                        updateHolding(oldHolding.getCountry(), oldHolding.getSymbol(), figi, isin, oldHolding.getQty().negate());
+                        oldHolding.transactions.add(tran);
+                        newHolding.transactions.add(tran);
                     }
                 }
             }

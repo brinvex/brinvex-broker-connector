@@ -33,6 +33,7 @@ public abstract class FinTransactionConstraints implements Validatable {
             case INTEREST -> new InterestConstraints(finTransaction);
             case FEE -> new FeeConstraints(finTransaction);
             case TAX -> new TaxConstraints(finTransaction);
+            case SYMBOL_CHANGE -> new SymbolChangeConstraints(finTransaction);
             case TRANSFORMATION -> new TransformationConstraints(finTransaction);
             case OTHER_INTERNAL_FLOW -> new OtherInternalFlowConstraints(finTransaction);
         };

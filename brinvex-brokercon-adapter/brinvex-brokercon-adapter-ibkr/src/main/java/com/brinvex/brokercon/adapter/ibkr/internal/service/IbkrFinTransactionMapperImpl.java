@@ -47,6 +47,7 @@ import static com.brinvex.brokercon.adapter.ibkr.api.model.statement.CashTransac
 import static com.brinvex.fintypes.enu.FinTransactionType.BUY;
 import static com.brinvex.fintypes.enu.FinTransactionType.DEPOSIT;
 import static com.brinvex.fintypes.enu.FinTransactionType.SELL;
+import static com.brinvex.fintypes.enu.FinTransactionType.SYMBOL_CHANGE;
 import static com.brinvex.fintypes.enu.FinTransactionType.TRANSFORMATION;
 import static com.brinvex.fintypes.enu.FinTransactionType.WITHDRAWAL;
 import static com.brinvex.java.StringUtil.stripToNull;
@@ -459,87 +460,85 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
             String figi = e.getKey();
             Map<String, List<PriorPeriodPosition>> figiPriorPeriodPositions = e.getValue();
             int symbolSize = figiPriorPeriodPositions.size();
-            if (symbolSize == 1) {
-                continue;
-            } else if (symbolSize == 2) {
-                Iterator<List<PriorPeriodPosition>> it = figiPriorPeriodPositions.values().iterator();
-                List<PriorPeriodPosition> symbol1Positions = new ArrayList<>(it.next());
-                List<PriorPeriodPosition> symbol2Positions = new ArrayList<>(it.next());
+            if (symbolSize != 1) {
+                if (symbolSize == 2) {
+                    Iterator<List<PriorPeriodPosition>> it = figiPriorPeriodPositions.values().iterator();
+                    List<PriorPeriodPosition> symbol1Positions = new ArrayList<>(it.next());
+                    List<PriorPeriodPosition> symbol2Positions = new ArrayList<>(it.next());
 
-                symbol1Positions.sort(comparing(PriorPeriodPosition::date));
-                symbol2Positions.sort(comparing(PriorPeriodPosition::date));
+                    symbol1Positions.sort(comparing(PriorPeriodPosition::date));
+                    symbol2Positions.sort(comparing(PriorPeriodPosition::date));
 
-                PriorPeriodPosition oldPosition;
-                PriorPeriodPosition newPosition;
-                PriorPeriodPosition symbol1LastPosition = symbol1Positions.getLast();
-                PriorPeriodPosition symbol2LastPosition = symbol2Positions.getLast();
-                PriorPeriodPosition symbol1FirstPosition = symbol1Positions.getFirst();
-                PriorPeriodPosition symbol2FirstPosition = symbol2Positions.getFirst();
-                if (symbol1LastPosition.date().isBefore(symbol2FirstPosition.date())) {
-                    Assert.isTrue(symbol1LastPosition.date().plusDays(5).isAfter(symbol2LastPosition.date()));
-                    oldPosition = symbol1LastPosition;
-                    newPosition = symbol2FirstPosition;
-                } else if (symbol1LastPosition.date().isAfter(symbol2FirstPosition.date())) {
-                    Assert.isTrue(symbol2LastPosition.date().plusDays(5).isAfter(symbol1FirstPosition.date()));
-                    oldPosition = symbol2LastPosition;
-                    newPosition = symbol1FirstPosition;
-                } else {
-                    throw new IllegalStateException(
-                            "Expecting subsequent dates: %s, %s".formatted(symbol1LastPosition, symbol2FirstPosition));
-                }
-                Map<LocalDate, List<FinTransaction>> figiCorpActions = figis2CorpActions.get(figi);
-                boolean corpActionFound = false;
-                if (figiCorpActions != null) {
-                    LocalDate d1 = oldPosition.date();
-                    LocalDate d2 = newPosition.date();
-                    for (LocalDate d = d1; d.isBefore(d2); d = d.plusDays(1)) {
-                        if (figiCorpActions.containsKey(d)) {
-                            corpActionFound = true;
-                            break;
+                    PriorPeriodPosition oldPosition;
+                    PriorPeriodPosition newPosition;
+                    PriorPeriodPosition symbol1LastPosition = symbol1Positions.getLast();
+                    PriorPeriodPosition symbol2LastPosition = symbol2Positions.getLast();
+                    PriorPeriodPosition symbol1FirstPosition = symbol1Positions.getFirst();
+                    PriorPeriodPosition symbol2FirstPosition = symbol2Positions.getFirst();
+                    if (symbol1LastPosition.date().isBefore(symbol2FirstPosition.date())) {
+                        Assert.isTrue(symbol1LastPosition.date().plusDays(5).isAfter(symbol2LastPosition.date()));
+                        oldPosition = symbol1LastPosition;
+                        newPosition = symbol2FirstPosition;
+                    } else if (symbol1LastPosition.date().isAfter(symbol2FirstPosition.date())) {
+                        Assert.isTrue(symbol2LastPosition.date().plusDays(5).isAfter(symbol1FirstPosition.date()));
+                        oldPosition = symbol2LastPosition;
+                        newPosition = symbol1FirstPosition;
+                    } else {
+                        throw new IllegalStateException(
+                                "Expecting subsequent dates: %s, %s".formatted(symbol1LastPosition, symbol2FirstPosition));
+                    }
+                    Map<LocalDate, List<FinTransaction>> figiCorpActions = figis2CorpActions.get(figi);
+                    boolean corpActionFound = false;
+                    if (figiCorpActions != null) {
+                        LocalDate d1 = oldPosition.date();
+                        LocalDate d2 = newPosition.date();
+                        for (LocalDate d = d1; d.isBefore(d2); d = d.plusDays(1)) {
+                            if (figiCorpActions.containsKey(d)) {
+                                corpActionFound = true;
+                                break;
+                            }
                         }
                     }
+                    if (corpActionFound) {
+                        continue;
+                    }
+
+                    Assert.isTrue(oldPosition.assetCategory().equals(newPosition.assetCategory()));
+                    Assert.isTrue(oldPosition.assetSubCategory().equals(newPosition.assetSubCategory()));
+                    Assert.isTrue(oldPosition.currency().equals(newPosition.currency()));
+
+                    finTransactions.add(FinTransaction.builder()
+                            .type(SYMBOL_CHANGE)
+                            .date(newPosition.date())
+                            .ccy(newPosition.currency())
+                            .netValue(ZERO)
+                            .qty(ZERO)
+                            .price(null)
+                            .asset(Asset.builder()
+                                    .type(toInstType(newPosition.assetCategory(), newPosition.assetSubCategory()))
+                                    .countryFigi(figi)
+                                    .symbol(newPosition.symbol())
+                                    .country(detectCountryByExchange(newPosition.listingExchange()))
+                                    .isin(newPosition.isin())
+                                    .name(newPosition.description())
+                                    .extraType("%s/%s".formatted(newPosition.assetCategory(), newPosition.assetSubCategory()))
+                                    .build())
+                            .grossValue(ZERO)
+                            .tax(ZERO)
+                            .fee(ZERO)
+                            .settleDate(newPosition.date())
+                            .groupId(null)
+                            .externalId("SYMBOL_CHANGE_%s/%s/%s->%s".formatted(
+                                    newPosition.date(), figi, oldPosition.symbol(), newPosition.symbol()))
+                            .externalType("SYMBOL_CHANGE")
+                            .externalDetail("%s, %s".formatted(oldPosition, newPosition))
+                            .build());
+                } else {
+                    throw new IllegalStateException("Expecting max 2 priorPeriodPositions, got %s for figi=%s, %s".formatted(symbolSize, figi, figiPriorPeriodPositions.keySet()));
+
                 }
-                if (corpActionFound) {
-                    continue;
-                }
-
-                Assert.isTrue(oldPosition.assetCategory().equals(newPosition.assetCategory()));
-                Assert.isTrue(oldPosition.assetSubCategory().equals(newPosition.assetSubCategory()));
-                Assert.isTrue(oldPosition.currency().equals(newPosition.currency()));
-
-                finTransactions.add(FinTransaction.builder()
-                        .type(TRANSFORMATION)
-                        .date(newPosition.date())
-                        .ccy(newPosition.currency())
-                        .netValue(ZERO)
-                        .qty(ZERO)
-                        .price(null)
-                        .asset(Asset.builder()
-                                .type(toInstType(newPosition.assetCategory(), newPosition.assetSubCategory()))
-                                .countryFigi(figi)
-                                .symbol(newPosition.symbol())
-                                .country(detectCountryByExchange(newPosition.listingExchange()))
-                                .isin(newPosition.isin())
-                                .name(newPosition.description())
-                                .extraType("%s/%s".formatted(newPosition.assetCategory(), newPosition.assetSubCategory()))
-                                .build())
-                        .grossValue(ZERO)
-                        .tax(ZERO)
-                        .fee(ZERO)
-                        .settleDate(newPosition.date())
-                        .groupId(null)
-                        .externalId("SymbolChange_%s/%s/%s->%s".formatted(
-                                newPosition.date(), figi, oldPosition.symbol(), newPosition.symbol()))
-                        .externalType("SymbolChange")
-                        .externalDetail("%s, %s".formatted(oldPosition, newPosition))
-                        .build());
-            } else {
-                throw new IllegalStateException("Expecting max 2 priorPeriodPositions, got %s for figi=%s, %s".formatted(symbolSize, figi, figiPriorPeriodPositions.keySet()));
-
             }
-
         }
-
 
         return finTransactions;
     }
