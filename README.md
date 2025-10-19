@@ -1,6 +1,6 @@
-# Brinvex Broker Connect
+# Brinvex Broker Connector
 
-_Brinvex Broker Connect_ simplifies portfolio tracking by collecting 
+_Brinvex Broker Connector_ simplifies portfolio tracking by collecting 
 transactions and daily asset values from banks and brokers. 
 It supports online fetching as well as manual input.
 Fetched data is stored locally to prevent repeated requests and improve performance.
@@ -14,10 +14,10 @@ integration, or other opportunities, feel free to get in touch - I’d love to h
 It's not necessary to include all dependencies.
 You only need to import the ones relevant to your specific use case.
 For example, if you need integration with IBKR, 
-import the ``brinvex-brokercon-adapter-ibkr`` dependencies.
+import the ``brinvex-broker-connector-ibkr`` dependencies.
 
     <properties>
-         <brinvex-brokercon.version>1.1.2</brinvex-brokercon.version>
+         <brinvex-broker-connector.version>1.1.2</brinvex-broker-connector.version>
     </properties>
     
     <repository>
@@ -31,46 +31,46 @@ import the ``brinvex-brokercon-adapter-ibkr`` dependencies.
 
     <dependency>
         <groupId>com.brinvex</groupId>
-        <artifactId>brinvex-brokercon-core</artifactId>
-        <version>${brinvex-brokercon.version}</version>
+        <artifactId>brinvex-broker-connector-core</artifactId>
+        <version>${brinvex-broker-connector.version}</version>
     </dependency>
 
     <!-- Optional IBKR connector-->
     <dependency>
         <groupId>com.brinvex</groupId>
-        <artifactId>brinvex-brokercon-adapter-ibkr</artifactId>
-        <version>${brinvex-brokercon.version}</version>
+        <artifactId>brinvex-broker-connector-ibkr</artifactId>
+        <version>${brinvex-broker-connector.version}</version>
     </dependency>
 
     <!-- Optional RVLT connector -->
     <dependency>
         <groupId>com.brinvex</groupId>
-        <artifactId>brinvex-brokercon-adapter-rvlt</artifactId>
-        <version>${brinvex-brokercon.version}</version>
+        <artifactId>brinvex-broker-connector-rvlt</artifactId>
+        <version>${brinvex-broker-connector.version}</version>
     </dependency>
 
     <!-- Optional FIOB connector -->
     <dependency>
         <groupId>com.brinvex</groupId>
-        <artifactId>brinvex-brokercon-adapter-fiob</artifactId>
-        <version>${brinvex-brokercon.version}</version>
+        <artifactId>brinvex-broker-connector-fiob</artifactId>
+        <version>${brinvex-broker-connector.version}</version>
     </dependency>
 
     <!-- Optional AMND connector -->
     <dependency>
         <groupId>com.brinvex</groupId>
-        <artifactId>brinvex-brokercon-adapter-amnd</artifactId>
-        <version>${brinvex-brokercon.version}</version>
+        <artifactId>brinvex-broker-connector-amnd</artifactId>
+        <version>${brinvex-broker-connector.version}</version>
     </dependency>
 
 
 ### Requirements
 
-Java 23 or above
+Java 25 or above
 
 ### License
 
-The _Brinvex Broker Connect_ is released under version 2.0 of the Apache License.
+The _Brinvex Broker Connector_ is released under version 2.0 of the Apache License.
 
 ## Practical insights and tips
 

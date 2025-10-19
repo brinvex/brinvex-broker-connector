@@ -13,24 +13,24 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <!-- todo 3 - Make brinvex-brokercon JPMS compliant, requires hibernate-validator 9+. Start with tests in ibkr module. -->
-        <version>3.4.1</version>
+        <!-- todo 3 - Make brinvex-broker-connector JPMS compliant, requires hibernate-validator 9+. Start with tests in ibkr module. -->
+        <version>3.5.6</version>
     </parent>
 
     <groupId>com.brinvex</groupId>
-    <artifactId>brinvex-brokercon</artifactId>
+    <artifactId>brinvex-broker-connector</artifactId>
     <version>1.1.2</version>
     <packaging>pom</packaging>
 
     <description>
-        Brinvex Broker Connect simplifies portfolio tracking by collecting
+        Brinvex Broker Connector simplifies portfolio tracking by collecting
         transactions and daily asset values from banks and brokers.
         It supports online fetching as well as manual input.
         Fetched data is stored locally to prevent repeated requests and improve performance.
     </description>
 
     <properties>
-        <java.version>23</java.version>
+        <java.version>25</java.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -41,7 +41,7 @@
 
         <brinvex-fintypes.version>1.6.1</brinvex-fintypes.version>
         <brinvex-dms.version>1.0.0</brinvex-dms.version>
-        <brinvex-java.version>1.0.5</brinvex-java.version>
+        <brinvex-java.version>1.40.2</brinvex-java.version>
         <brinvex-csv.version>1.0.1</brinvex-csv.version>
 
         <pdfbox.version>3.0.3</pdfbox.version>
@@ -50,7 +50,7 @@
         <github.global.server>github-pubrepo-brinvex</github.global.server>
     </properties>
 
-    <url>https://github.com/brinvex/brinvex-brokercon</url>
+    <url>https://github.com/brinvex/brinvex-broker-connector</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -66,7 +66,7 @@
         </developer>
     </developers>
     <scm>
-        <url>https://github.com/brinvex/brinvex-brokercon</url>
+        <url>https://github.com/brinvex/brinvex-broker-connector</url>
     </scm>
     <organization>
         <name>Brinvex</name>
@@ -75,10 +75,15 @@
     <inceptionYear>2024</inceptionYear>
 
     <modules>
-        <module>brinvex-brokercon-adapter</module>
-        <module>brinvex-brokercon-core</module>
-        <module>brinvex-brokercon-test-support</module>
-        <module>brinvex-brokercon-core-test</module>
+        <module>brinvex-broker-connector-core</module>
+        <module>brinvex-broker-connector-test-support</module>
+        <module>brinvex-broker-connector-test</module>
+
+        <module>connectors/brinvex-broker-connector-ibkr</module>
+        <module>connectors/brinvex-broker-connector-rvlt</module>
+        <module>connectors/brinvex-broker-connector-fiob</module>
+        <module>connectors/brinvex-broker-connector-amnd</module>
+
     </modules>
 
     <dependencyManagement>
@@ -101,32 +106,32 @@
 
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-adapter-amnd</artifactId>
+                <artifactId>brinvex-broker-connector-amnd</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-adapter-fiob</artifactId>
+                <artifactId>brinvex-broker-connector-fiob</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-adapter-ibkr</artifactId>
+                <artifactId>brinvex-broker-connector-ibkr</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-adapter-rvlt</artifactId>
+                <artifactId>brinvex-broker-connector-rvlt</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-core</artifactId>
+                <artifactId>brinvex-broker-connector-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brinvex</groupId>
-                <artifactId>brinvex-brokercon-test-support</artifactId>
+                <artifactId>brinvex-broker-connector-test-support</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
