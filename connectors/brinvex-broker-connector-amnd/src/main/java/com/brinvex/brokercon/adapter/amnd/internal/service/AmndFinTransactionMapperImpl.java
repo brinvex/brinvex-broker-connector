@@ -5,6 +5,7 @@ import com.brinvex.brokercon.adapter.amnd.api.service.AmndFinTransactionMapper;
 import com.brinvex.brokercon.core.api.ModuleContext;
 import com.brinvex.brokercon.core.api.facade.JsonMapperFacade;
 import com.brinvex.brokercon.core.api.domain.Asset;
+import com.brinvex.fintypes.enu.Country;
 import com.brinvex.fintypes.enu.InstrumentType;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.fintypes.enu.FinTransactionType;
@@ -24,23 +25,24 @@ public class AmndFinTransactionMapperImpl implements AmndFinTransactionMapper {
     private final Map<String, Asset> isinToAssetMapping;
 
     public AmndFinTransactionMapperImpl(ModuleContext moduleCtx) {
-        String isinToCountrySymbolMapProp = moduleCtx.getProperty("isinToCountrySymbolMap");
-        if (isinToCountrySymbolMapProp == null || isinToCountrySymbolMapProp.isEmpty()) {
-            throw new IllegalArgumentException("isinToCountrySymbolMap is required");
+        String isinToSymbolMapProp = moduleCtx.getProperty("isinToSymbolMap");
+        if (isinToSymbolMapProp == null || isinToSymbolMapProp.isEmpty()) {
+            throw new IllegalArgumentException("isinToSymbolMap is required");
         }
         JsonMapperFacade jsonMapper = moduleCtx.toolbox().jsonMapper();
         @SuppressWarnings("unchecked")
-        Map<String, String> rawMap = jsonMapper.readFromJson(isinToCountrySymbolMapProp, Map.class);
+        Map<String, String> rawMap = jsonMapper.readFromJson(isinToSymbolMapProp, Map.class);
         this.isinToAssetMapping = rawMap
                 .entrySet()
                 .stream()
                 .collect(toLinkedMap(Map.Entry::getKey, e -> {
-                    String[] countrySymbol = e.getValue().split(":");
+                    String[] symbolAndCountry = e.getValue().split("\\.");
                     return Asset.builder()
                             .isin(e.getKey())
                             .type(InstrumentType.FUND)
-                            .country(countrySymbol[0])
-                            .symbol(countrySymbol[1]).build();
+                            .symbol(symbolAndCountry[0])
+                            .country(symbolAndCountry.length == 1 ? Country.US : Country.valueOf(symbolAndCountry[1]))
+                            .build();
                 }));
     }
 
