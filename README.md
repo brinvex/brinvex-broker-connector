@@ -17,7 +17,7 @@ For example, if you need integration with IBKR,
 import the ``brinvex-broker-connector-ibkr`` dependencies.
 
     <properties>
-         <brinvex-broker-connector.version>1.1.2</brinvex-broker-connector.version>
+         <brinvex-broker-connector.version>1.2.0</brinvex-broker-connector.version>
     </properties>
     
     <repository>
