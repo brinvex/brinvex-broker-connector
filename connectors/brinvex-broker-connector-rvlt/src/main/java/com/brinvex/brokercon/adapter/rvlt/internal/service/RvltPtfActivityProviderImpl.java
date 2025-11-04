@@ -101,6 +101,13 @@ public class RvltPtfActivityProviderImpl implements RvltPtfActivityProvider {
 
             LocalDate taPeriodStart = taStatement.periodStartIncl();
             LocalDate taPeriodEnd = taStatement.periodEndIncl();
+            if (taPeriodEnd.getDayOfMonth() != 1) {
+                if (taPeriodEnd.plusDays(1).getDayOfMonth() == 1) {
+                    taPeriodEnd = taPeriodEnd.plusDays(1);
+                } else {
+                    throw new IllegalArgumentException("TradingAccountStatement end dayOfMonth must be 31 or 1" + taPeriodEnd);
+                }
+            }
             Assert.isTrue(taPeriodEnd.getDayOfMonth() == 1);
             Assert.isTrue(!taPeriodStart.plusMonths(1).isBefore(taPeriodEnd));
             if (prevTaPeriodEnd != null) {
