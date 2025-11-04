@@ -7,7 +7,7 @@
         <groupId>com.brinvex</groupId>
         <artifactId>brinvex-broker-connector</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </parent>
 
     <artifactId>brinvex-broker-connector-rvlt</artifactId>
