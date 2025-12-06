@@ -81,12 +81,18 @@ public class AmndStatementParserImpl implements AmndStatementParser {
 
             try {
                 desc1 = lines.get(i);
-                desc2 = lines.get(++i);
                 if (desc1.startsWith("Investícia")) {
+                    desc2 = lines.get(++i);
                     line = lines.get(++i);
                     assertLine(i, line, "Bezhotovostný prevod");
                     tradeType = TradeType.BUY;
+                } else if (desc1.startsWith("Investice")) {
+                    line = lines.get(++i);
+                    assertLine(i, line, "Bezhotovostný prevod");
+                    desc2 = "";
+                    tradeType = TradeType.BUY;
                 } else if (desc1.startsWith("Spätné odkúpenie")) {
+                    desc2 = lines.get(++i);
                     tradeType = TradeType.SELL;
                 } else {
                     break;
