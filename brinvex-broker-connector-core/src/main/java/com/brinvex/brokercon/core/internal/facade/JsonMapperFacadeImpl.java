@@ -1,39 +1,26 @@
 package com.brinvex.brokercon.core.internal.facade;
 
 import com.brinvex.brokercon.core.api.facade.JsonMapperFacade;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 public class JsonMapperFacadeImpl implements JsonMapperFacade {
 
     private static class Lazy {
-        private static final ObjectMapper jsonObjectMapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        private static final JsonMapper jsonMapper = JsonMapper.builder()
+                .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
     }
 
     @Override
     public <T> T readFromJson(Path jsonFilePath, Class<T> type) {
-        try {
-            return Lazy.jsonObjectMapper.readValue(jsonFilePath.toFile(), type);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return Lazy.jsonMapper.readValue(jsonFilePath.toFile(), type);
     }
 
     @Override
     public <T> T readFromJson(String jsonContent, Class<T> type) {
-        try {
-            return Lazy.jsonObjectMapper.readValue(jsonContent, type);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return Lazy.jsonMapper.readValue(jsonContent, type);
     }
 }

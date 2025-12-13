@@ -6,7 +6,7 @@ import com.brinvex.brokercon.core.api.domain.Asset;
 import com.brinvex.brokercon.core.api.domain.FinTransaction;
 import com.brinvex.fintypes.enu.FinTransactionType;
 import com.brinvex.java.validation.Assert;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonCreator ;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
