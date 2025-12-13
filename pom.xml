@@ -78,6 +78,7 @@
         <module>brinvex-broker-connector-core</module>
         <module>brinvex-broker-connector-test-support</module>
         <module>brinvex-broker-connector-test</module>
+        <module>brinvex-broker-connector-poc</module>
     </modules>
 
     <dependencyManagement>
