@@ -14,4 +14,5 @@ module com.brinvex.brokercon.connector.ibkr {
     requires java.xml;
     requires transitive org.slf4j;
     provides com.brinvex.brokercon.core.api.ModuleFactory with IbkrModuleImpl.IbkrModuleFactory;
-}*/
+}
+*/

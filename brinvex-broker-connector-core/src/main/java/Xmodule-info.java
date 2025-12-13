@@ -12,12 +12,11 @@ module com.brinvex.brokercon.core {
     requires com.brinvex.dms;
     requires com.brinvex.fintypes;
     requires com.brinvex.java;
-    requires com.fasterxml.jackson.datatype.jsr310;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.databind;
+    requires tools.jackson.core;
     requires jakarta.validation;
     requires org.apache.pdfbox;
     requires org.apache.pdfbox.io;
     requires org.slf4j;
-
     uses com.brinvex.brokercon.core.api.ModuleFactory;
 }*/
