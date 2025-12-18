@@ -1,6 +1,6 @@
 set JAVA_HOME="V:\tools\java\jdk-25"
 
-set new_version=1.2.6
+set new_version=1.2.7
 
 set jsh_content=^
     Files.writeString(Path.of("README.md"), ^
