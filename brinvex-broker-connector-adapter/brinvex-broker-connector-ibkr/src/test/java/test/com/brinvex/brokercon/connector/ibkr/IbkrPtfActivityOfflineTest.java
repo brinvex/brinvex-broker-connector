@@ -317,7 +317,7 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
     @EnabledIf("account2IsNotNull")
     @Test
     void ptfProgress_balanceCorrectness() {
-        TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20250918");
+        TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20251217");
         IbkrPtfActivityProvider ptfProgressProvider = brokercon.get(IbkrModule.class).ptfProgressProvider();
         ValidatorFacade validator = brokercon.validator();
 
@@ -513,6 +513,21 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
             assertEquals(2, ptf.getCurrencies().size());
             assertEquals("83", ptf.getHoldingQty(DE, "SXR8").toString());
             assertEquals("24", ptf.getHoldingQty(DE, "SIE").toString());
+            List<FinTransaction> dividendTrans1 = ptf.getTransactions().stream()
+                    .filter(t -> t.type() == FinTransactionType.DIVIDEND && t.asset().symbol().equals("SIE"))
+                    .toList();
+            assertEquals(1, dividendTrans1.size());
+        }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2025-12-17")
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("100", ptf.getHoldingQty(DE, "SXR8").toString());
+            assertEquals("24", ptf.getHoldingQty(DE, "SIE").toString());
+            assertEquals("0", ptf.getHoldingQty(DE, "SIEd").toString());
             List<FinTransaction> dividendTrans1 = ptf.getTransactions().stream()
                     .filter(t -> t.type() == FinTransactionType.DIVIDEND && t.asset().symbol().equals("SIE"))
                     .toList();

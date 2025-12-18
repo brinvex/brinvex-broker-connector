@@ -467,7 +467,9 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
         Map<String, Map<String, List<PriorPeriodPosition>>> figis2Symbols2PriorPeriodPositions = priorPeriodPositions
                 .stream()
                 .filter(ppp -> (ppp.figi() != null && !ppp.figi().isBlank()) || (ppp.isin() != null && !ppp.isin().isBlank()))
-                .collect(groupingBy(ppp -> coalesce(stripToNull(ppp.figi()), stripToNull(ppp.isin())), groupingBy(PriorPeriodPosition::symbol)));
+                .collect(groupingBy(ppp -> coalesce(stripToNull(ppp.figi()), stripToNull(ppp.isin())),
+                        groupingBy(ppp -> reconcileSymbol(detectCountryByExchange(
+                                ppp.listingExchange()), ppp.symbol(), ppp.underlyingSymbol(), ppp.assetSubCategory(), ppp.date()))));
 
         List<FinTransaction> finTransactions = new ArrayList<>();
         for (Entry<String, Map<String, List<PriorPeriodPosition>>> e : figis2Symbols2PriorPeriodPositions.entrySet()) {
@@ -490,7 +492,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     PriorPeriodPosition symbol1FirstPosition = symbol1Positions.getFirst();
                     PriorPeriodPosition symbol2FirstPosition = symbol2Positions.getFirst();
                     if (symbol1LastPosition.date().isBefore(symbol2FirstPosition.date())) {
-                        Assert.isTrue(symbol1LastPosition.date().plusDays(5).isAfter(symbol2LastPosition.date()));
+                        Assert.isTrue(symbol1LastPosition.date().plusDays(5).isAfter(symbol2FirstPosition.date()));
                         oldPosition = symbol1LastPosition;
                         newPosition = symbol2FirstPosition;
                     } else if (symbol1LastPosition.date().isAfter(symbol2FirstPosition.date())) {

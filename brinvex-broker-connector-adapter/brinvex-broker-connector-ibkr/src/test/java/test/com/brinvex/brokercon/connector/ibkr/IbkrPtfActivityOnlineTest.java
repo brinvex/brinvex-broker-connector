@@ -230,6 +230,16 @@ class IbkrPtfActivityOnlineTest extends IbkrBaseTest {
             assertEquals(2, ptf.getCurrencies().size());
             assertEquals("81", ptf.getHoldingQty(DE, "SXR8").toString());
         }
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgress(
+                    account2, parse("2023-01-23"), parse("2025-12-17"), ofMinutes(1)
+            );
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            ptf = new SimplePtf(ptfActivity.transactions());
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals("24", ptf.getHoldingQty(DE, "SIE").toString());
+            assertEquals("0", ptf.getHoldingQty(DE, "SIEd").toString());
+        }
     }
 }
 
