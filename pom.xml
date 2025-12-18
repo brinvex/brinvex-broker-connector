@@ -40,7 +40,7 @@
 
         <brinvex-fintypes.version>1.6.1</brinvex-fintypes.version>
         <brinvex-dms.version>1.0.0</brinvex-dms.version>
-        <brinvex-java.version>1.40.7</brinvex-java.version>
+        <brinvex-java.version>1.40.9</brinvex-java.version>
         <brinvex-csv.version>1.0.1</brinvex-csv.version>
 
         <pdfbox.version>3.0.6</pdfbox.version>

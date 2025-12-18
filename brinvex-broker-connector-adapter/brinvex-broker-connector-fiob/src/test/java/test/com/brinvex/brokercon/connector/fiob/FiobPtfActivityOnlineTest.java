@@ -86,6 +86,33 @@ class FiobPtfActivityOnlineTest extends FiobBaseTest {
         }
     }
 
+    @EnabledIf("account1CredentialsIsNotNull")
+    @EnabledIfSystemProperty(named = "enableConfidentialTests", matches = "true")
+    @Test
+    void ptfProgressOnline_account1_3() {
+        assert account1 != null;
+
+        String dmsWorkspace = "fiob-dms-online1";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(dmsWorkspace);
+        FiobModule fiobModule = testCtx.get(FiobModule.class);
+        FiobPtfActivityProvider ptfProgressProvider = fiobModule.ptfProgressProvider();
+        ValidatorFacade validator = testCtx.validator();
+
+        {
+            LocalDate fromDateIncl = parse("2019-01-05");
+            LocalDate toDateIncl = parse("2025-12-17");
+
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgress(account1, fromDateIncl, toDateIncl, ofMinutes(15));
+
+            SequencedCollection<FinTransaction> trans = ptfActivity.transactions();
+            assertFalse(trans.isEmpty());
+            validator.validateAndThrow(trans, FinTransactionConstraints::of);
+
+            SimplePtf ptf = new SimplePtf(trans);
+            assertEquals(0, ptf.getHoldingQty(Country.US, "GOLD").compareTo(ZERO));
+        }
+    }
+
     @EnabledIf("account4CredentialsIsNotNull")
     @EnabledIfSystemProperty(named = "enableConfidentialTests", matches = "true")
     @Test
