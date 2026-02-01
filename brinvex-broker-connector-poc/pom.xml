@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.brinvex</groupId>
         <artifactId>brinvex-broker-connector</artifactId>
-        <version>1.2.9</version>
+        <version>1.2.10</version>
     </parent>
 
     <artifactId>brinvex-broker-connector-poc</artifactId>
