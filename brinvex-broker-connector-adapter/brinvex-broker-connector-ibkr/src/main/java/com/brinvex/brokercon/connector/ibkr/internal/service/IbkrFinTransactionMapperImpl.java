@@ -189,7 +189,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                 }
             };
 
-            String tranId = getId(cashTran);
+            String tranId = constructExtId(cashTran);
             FinTransaction newTran = finTranBldr
                     .externalId(tranId)
                     .date(cashTran.reportDate())
@@ -326,7 +326,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                 }
             };
 
-            String tranId = getId(trade);
+            String tranId = constructExtId(trade);
 
             FinTransaction newTran = tranBldr
                     .externalId(tranId)
@@ -403,12 +403,14 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
             FinTransactionBuilder tranBldr = switch (corpAction.type()) {
                 case MERGED_ACQUISITION -> {
                     Assert.isTrue(corpAction.description().contains("MERGED(Acquisition)"));
+                    BigDecimal proceeds = corpAction.proceeds();
+                    BigDecimal price = proceeds.compareTo(ZERO) == 0 ? null : proceeds.divide(corpAction.quantity().abs(), 2, RoundingMode.HALF_UP);
                     yield FinTransaction.builder()
                             .externalType(CorporateActionType.MERGED_ACQUISITION.name())
                             .qty(corpAction.quantity())
-                            .price(corpAction.proceeds().divide(corpAction.quantity().abs(), 2, RoundingMode.HALF_UP))
-                            .grossValue(corpAction.proceeds())
-                            .netValue(corpAction.proceeds());
+                            .price(price)
+                            .grossValue(proceeds)
+                            .netValue(proceeds);
                 }
                 case SPIN_OFF -> {
                     Assert.isTrue(corpAction.description().contains("SPINOFF"));
@@ -434,9 +436,11 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                 }
             };
 
-            String tranId = getId(corpAction);
+            String extId = constructExtId(corpAction);
+            String groupId = constructGroupId(corpAction);
             FinTransaction newTran = tranBldr
-                    .externalId(tranId)
+                    .externalId(extId)
+                    .groupId(groupId)
                     .type(TRANSFORMATION)
                     .date(corpAction.reportDate())
                     .asset(asset)
@@ -445,9 +449,9 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                     .fee(ZERO)
                     .externalDetail(corpAction.extraDateTimeStr() + "/" + corpAction.description())
                     .build();
-            FinTransaction oldTran = resultTrans.put(tranId, newTran);
+            FinTransaction oldTran = resultTrans.put(extId, newTran);
             if (oldTran != null) {
-                throw new IllegalStateException("ID collision: %s, oldTran=%s, newTran=%s, corpAction=%s".formatted(tranId, oldTran, newTran, corpAction));
+                throw new IllegalStateException("ID collision: %s, oldTran=%s, newTran=%s, corpAction=%s".formatted(extId, oldTran, newTran, corpAction));
             }
         }
         return new ArrayList<>(resultTrans.values());
@@ -627,21 +631,32 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
         };
     }
 
-    private static String getId(CashTransaction cashTran) {
+    private static String constructExtId(CashTransaction cashTran) {
         return "CT/%s/%s".formatted(
                 cashTran.reportDate().format(idDf),
                 cashTran.transactionID()
         );
     }
 
-    private static String getId(CorporateAction corpAction) {
-        return "CA/%s/%s".formatted(
+    private static String constructExtId(CorporateAction corpAction) {
+        return "CA/%s/%s/%s".formatted(
                 corpAction.reportDate().format(idDf),
-                corpAction.actionID()
+                corpAction.actionID(),
+                corpAction.transactionId()
         );
     }
 
-    private static String getId(Trade trade) {
+    private static String constructGroupId(CorporateAction corpAction) {
+        if (CorporateActionType.MERGED_ACQUISITION.equals(corpAction.type())) {
+            return "CA/%s/%s".formatted(
+                    corpAction.reportDate().format(idDf),
+                    corpAction.actionID()
+            );
+        }
+        return null;
+    }
+
+    private static String constructExtId(Trade trade) {
         return "T/%s/%s/%s".formatted(
                 trade.reportDate().format(idDf), trade.tradeID(), trade.ibOrderID()
         );

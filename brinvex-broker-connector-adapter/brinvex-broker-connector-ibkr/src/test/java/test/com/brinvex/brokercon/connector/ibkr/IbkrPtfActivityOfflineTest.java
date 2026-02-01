@@ -316,6 +316,28 @@ class IbkrPtfActivityOfflineTest extends IbkrBaseTest {
 
     @EnabledIf("account2IsNotNull")
     @Test
+    void ptfProgress_merger() {
+        TestContext testCtx = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20260201");
+        IbkrModule ibkrModule = testCtx.get(IbkrModule.class);
+        IbkrPtfActivityProvider ptfProgressProvider = ibkrModule.ptfProgressProvider();
+        ValidatorFacade validator = testCtx.validator();
+        {
+            PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(
+                    account2, parse("2023-01-23"), parse("2026-02-01"));
+            validator.validateAndThrow(ptfActivity.transactions(), FinTransactionConstraints::of);
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
+
+            assertEquals(2, ptf.getCurrencies().size());
+            assertEquals(0, ptf.getCash(EUR).setScale(2, HALF_UP).compareTo(new BigDecimal("626.99")));
+            assertEquals(0, ptf.getCash(USD).setScale(2, HALF_UP).compareTo(new BigDecimal("50.86")));
+
+            assertEquals(0, ptf.getHoldingQty(US, "CIVI").intValue());
+            assertEquals(0, ptf.getHoldingQty(US, "SM").compareTo(new BigDecimal("21.75")));
+        }
+    }
+
+    @EnabledIf("account2IsNotNull")
+    @Test
     void ptfProgress_balanceCorrectness() {
         TestContext brokercon = this.testCtx.withDmsWorkspace("ibkr-dms-stable-20251217");
         IbkrPtfActivityProvider ptfProgressProvider = brokercon.get(IbkrModule.class).ptfProgressProvider();
