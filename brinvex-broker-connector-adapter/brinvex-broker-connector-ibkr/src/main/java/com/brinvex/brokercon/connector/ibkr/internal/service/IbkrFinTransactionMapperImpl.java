@@ -171,7 +171,7 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             .netValue(amount)
                             .tax(amount);
                 }
-                case OTHER_FEES, BROKER_INTEREST_PAID, BROKER_FEES -> {
+                case OTHER_FEES, BROKER_FEES, BROKER_INTEREST_PAID -> {
                     Assert.isNull(cashTran.assetCategory());
                     Assert.isNull(cashTran.assetSubCategory());
                     Assert.empty(cashTran.listingExchange());
@@ -184,6 +184,22 @@ public class IbkrFinTransactionMapperImpl implements IbkrFinTransactionMapper {
                             .grossValue(ZERO)
                             .qty(ZERO)
                             .fee(amount)
+                            .netValue(amount)
+                            .tax(ZERO);
+                }
+                case BROKER_INTEREST_RECEIVED -> {
+                    Assert.isNull(cashTran.assetCategory());
+                    Assert.isNull(cashTran.assetSubCategory());
+                    Assert.empty(cashTran.listingExchange());
+                    Assert.empty(cashTran.symbol());
+                    Assert.empty(cashTran.figi());
+                    Assert.empty(cashTran.isin());
+                    yield FinTransaction.builder()
+                            .type(FinTransactionType.INTEREST)
+                            .externalType(cashTranType.name())
+                            .grossValue(amount)
+                            .qty(ZERO)
+                            .fee(ZERO)
                             .netValue(amount)
                             .tax(ZERO);
                 }

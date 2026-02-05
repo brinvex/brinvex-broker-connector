@@ -14,6 +14,8 @@ public enum CashTransactionType {
 
     BROKER_INTEREST_PAID("Broker Interest Paid"),
 
+    BROKER_INTEREST_RECEIVED("Broker Interest Received"),
+
     BROKER_FEES("Broker Fees");
 
     private final String value;
