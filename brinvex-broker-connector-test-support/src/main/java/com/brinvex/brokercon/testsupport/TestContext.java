@@ -29,7 +29,7 @@ public class TestContext {
 
     private static class Lazy {
 
-        private static final Path HOME = Optional.of("v:/prj/bx/bx-broker-connector")
+        private static final Path HOME = Optional.of("v:/prj/bx-broker-connector")
                 .map(Paths::get)
                 .orElseThrow();
 
