@@ -1,6 +1,7 @@
 package test.com.brinvex.brokercon.connector.fiob;
 
 
+import com.brinvex.fintypes.enu.Country;
 import com.brinvex.fintypes.vo.DateAmount;
 import com.brinvex.brokercon.connector.fiob.api.FiobModule;
 import com.brinvex.brokercon.connector.fiob.api.service.FiobPtfActivityProvider;
@@ -27,7 +28,9 @@ import java.util.Set;
 
 import static com.brinvex.fintypes.enu.Currency.EUR;
 import static com.brinvex.brokercon.testsupport.AssertionUtil.assertPtfSnapshotEqual;
+import static com.brinvex.fintypes.enu.Currency.USD;
 import static java.math.BigDecimal.ZERO;
+import static java.math.RoundingMode.HALF_UP;
 import static java.time.LocalDate.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -330,6 +333,30 @@ class FiobPtfActivityOfflineTest extends FiobBaseTest {
             assertPtfSnapshotEqual(ptf1, ptf2);
         }
     }
+
+    @EnabledIf("account1IsNotNull")
+    @Test
+    void ptfProgress8_mergerFinancialCompensation() {
+        assert account1 != null;
+
+        String dmsWorkspace = "fiob-dms-stable-20260301";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(dmsWorkspace);
+        FiobModule fiobModule = testCtx.get(FiobModule.class);
+        FiobPtfActivityProvider ptfProgressProvider = fiobModule.ptfProgressProvider();
+
+        LocalDate fromDateIncl = parse("2019-01-01");
+        LocalDate toDateIncl = parse("2026-03-01");
+
+        PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(account1, fromDateIncl, toDateIncl);
+        SequencedCollection<DateAmount> navs = ptfActivity.netAssetValues();
+
+        SimplePtf ptf1 = new SimplePtf(ptfActivity.transactions());
+        assertEquals("20.99", ptf1.getCash(USD).remainder(new BigDecimal(100)).setScale(2, HALF_UP).toPlainString());
+        assertEquals(0, ptf1.getHoldingQty(Country.US, "SNV").compareTo(ZERO));
+        assertEquals(0, ptf1.getHoldingQty(Country.US, "PNFP").compareTo(new BigDecimal("34")));
+
+    }
+
 
 }
 

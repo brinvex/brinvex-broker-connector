@@ -542,6 +542,16 @@ public class FiobTradingTransactionMapper {
                     groupTrans.add(tranBuilder2);
                 }
                 rawTransToProcess.removeFirst();
+            } else if (extraType == FiobTradingTransactionType.MERGER_FINANCIAL_COMPENSATION) {
+                Assert.notNull(symbol);
+                Assert.notNull(tranBuilder.ccy());
+                Assert.equal(ONE, tranBuilder.price());
+                Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) > 0);
+                Assert.equal(tranBuilder.grossValue(), tranBuilder.qty());
+                Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
+
+                tranBuilder.qty(ZERO);
+
             } else if (extraType == FiobTradingTransactionType.SPLIT) {
                 Assert.isNull(country);
                 Assert.isNull(tranBuilder.ccy());
@@ -829,6 +839,9 @@ public class FiobTradingTransactionMapper {
                     }
                 }
             }
+            if (text.endsWith("Finanční kompenzace - Stock Merger")) {
+                return FiobTradingTransactionType.MERGER_FINANCIAL_COMPENSATION;
+            }
             throw new IllegalStateException("Could not detect transaction type: %s".formatted(tran));
         }
 
@@ -908,6 +921,7 @@ public class FiobTradingTransactionMapper {
                 case RECLAMATION -> FinTransactionType.OTHER_INTERNAL_FLOW;
                 case MERGER_CHILD -> FinTransactionType.TRANSFORMATION;
                 case MERGER_PARENT -> FinTransactionType.TRANSFORMATION;
+                case MERGER_FINANCIAL_COMPENSATION -> FinTransactionType.TRANSFORMATION;
                 case LIQUIDATION -> FinTransactionType.TRANSFORMATION;
                 case SPLIT -> FinTransactionType.TRANSFORMATION;
                 case SPINOFF_VALUE -> FinTransactionType.TRANSFORMATION;

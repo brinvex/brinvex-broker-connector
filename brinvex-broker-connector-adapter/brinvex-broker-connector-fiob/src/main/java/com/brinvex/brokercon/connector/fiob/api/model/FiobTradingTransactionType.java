@@ -25,6 +25,7 @@ public enum FiobTradingTransactionType {
     SPLIT,
     LIQUIDATION,
     MERGER_PARENT,
-    MERGER_CHILD;
+    MERGER_CHILD,
+    MERGER_FINANCIAL_COMPENSATION;
 
 }
