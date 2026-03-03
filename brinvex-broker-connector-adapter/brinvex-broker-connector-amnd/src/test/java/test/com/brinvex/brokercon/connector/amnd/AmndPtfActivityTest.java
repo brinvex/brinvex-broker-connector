@@ -53,8 +53,7 @@ public class AmndPtfActivityTest extends AmndBaseTest {
             assertEquals(0, trans.get(1).fee().remainder(Num._100).compareTo(new BigDecimal("-70.00")));
 
             assertEquals(1, ptf.getHoldingsCount());
-            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFW").remainder(TEN)
-                    .compareTo((new BigDecimal("3.945"))));
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFW").remainder(TEN).compareTo((new BigDecimal("3.945"))));
             assertEquals(0, ptf.getCash(EUR).compareTo(ZERO));
 
             feeSum1 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add);
@@ -88,8 +87,7 @@ public class AmndPtfActivityTest extends AmndBaseTest {
             assertEquals(0, feeSum1.compareTo(feeSum2));
 
             assertEquals(1, ptf.getHoldingsCount());
-            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFW").remainder(TEN)
-                    .compareTo((new BigDecimal("3.945"))));
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFW").remainder(TEN).compareTo((new BigDecimal("3.945"))));
             assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
         }
     }
@@ -114,36 +112,32 @@ public class AmndPtfActivityTest extends AmndBaseTest {
 
             SimplePtf ptf = new SimplePtf(trans);
             assertEquals(1, ptf.getHoldingsCount());
-            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFN").remainder(TEN)
-                    .compareTo((new BigDecimal("0.472"))));
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFN").remainder(TEN).compareTo((new BigDecimal("0.472"))));
             assertEquals(0, ptf.getCash(EUR).compareTo(ZERO));
 
             feeSum1 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add);
         }
         {
-            {
-                PtfActivityReq ptfActivityReq = new PtfActivityReq(
-                        "amnd",
-                        account2,
-                        parse("2017-01-01"),
-                        parse("2024-11-26"),
-                        null
-                );
+            PtfActivityReq ptfActivityReq = new PtfActivityReq(
+                    "amnd",
+                    account2,
+                    parse("2017-01-01"),
+                    parse("2024-11-26"),
+                    null
+            );
 
-                PtfActivity ptfActivity = brokerConnector.process(ptfActivityReq);
-                List<FinTransaction> trans = new ArrayList<>(ptfActivity.transactions());
-                testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
+            PtfActivity ptfActivity = brokerConnector.process(ptfActivityReq);
+            List<FinTransaction> trans = new ArrayList<>(ptfActivity.transactions());
+            testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
 
-                SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
 
-                BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);
-                assertEquals(0, feeSum1.compareTo(feeSum2));
+            BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);
+            assertEquals(0, feeSum1.compareTo(feeSum2));
 
-                assertEquals(1, ptf.getHoldingsCount());
-                assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFN").remainder(TEN)
-                        .compareTo((new BigDecimal("0.472"))));
-                assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
-            }
+            assertEquals(1, ptf.getHoldingsCount());
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFN").remainder(TEN).compareTo((new BigDecimal("0.472"))));
+            assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
         }
     }
 
@@ -167,36 +161,54 @@ public class AmndPtfActivityTest extends AmndBaseTest {
 
             SimplePtf ptf = new SimplePtf(trans);
             assertEquals(1, ptf.getHoldingsCount());
-            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFR").remainder(TEN)
-                    .compareTo((new BigDecimal("5.889"))));
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFR").remainder(TEN).compareTo((new BigDecimal("5.889"))));
             assertEquals(0, ptf.getCash(EUR).compareTo(ZERO));
 
             feeSum1 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add);
         }
         {
-            {
-                PtfActivityReq ptfActivityReq = new PtfActivityReq(
-                        "amnd",
-                        account3,
-                        parse("2017-01-01"),
-                        parse("2024-11-26"),
-                        null
-                );
+            PtfActivityReq ptfActivityReq = new PtfActivityReq(
+                    "amnd",
+                    account3,
+                    parse("2017-01-01"),
+                    parse("2024-11-26"),
+                    null
+            );
 
-                PtfActivity ptfActivity = brokerConnector.process(ptfActivityReq);
-                List<FinTransaction> trans = new ArrayList<>(ptfActivity.transactions());
-                testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
+            PtfActivity ptfActivity = brokerConnector.process(ptfActivityReq);
+            List<FinTransaction> trans = new ArrayList<>(ptfActivity.transactions());
+            testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
 
-                SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
 
-                BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);
-                assertEquals(0, feeSum1.compareTo(feeSum2));
+            BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);
+            assertEquals(0, feeSum1.compareTo(feeSum2));
 
-                assertEquals(1, ptf.getHoldingsCount());
-                assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFR").remainder(TEN)
-                        .compareTo((new BigDecimal("5.889"))));
-                assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
-            }
+            assertEquals(1, ptf.getHoldingsCount());
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFR").remainder(TEN).compareTo((new BigDecimal("5.889"))));
+            assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
+        }
+        {
+            PtfActivityReq ptfActivityReq = new PtfActivityReq(
+                    "amnd",
+                    account3,
+                    parse("2017-01-01"),
+                    parse("2026-03-02"),
+                    null
+            );
+
+            PtfActivity ptfActivity = brokerConnector.process(ptfActivityReq);
+            List<FinTransaction> trans = new ArrayList<>(ptfActivity.transactions());
+            testCtx.validator().validateAndThrow(trans, FinTransactionConstraints::of);
+
+            SimplePtf ptf = new SimplePtf(ptfActivity.transactions());
+
+            BigDecimal feeSum2 = trans.stream().map(FinTransaction::fee).reduce(ZERO, BigDecimal::add).setScale(4, HALF_UP);
+            assertEquals(0, feeSum1.compareTo(feeSum2));
+
+            assertEquals(1, ptf.getHoldingsCount());
+            assertEquals(0, ptf.getHoldingQty(DE, "0P00015DFR").compareTo((new BigDecimal("1"))));
+            assertEquals(0, ptf.getCash(EUR).setScale(4, HALF_UP).compareTo(ZERO));
         }
     }
 }

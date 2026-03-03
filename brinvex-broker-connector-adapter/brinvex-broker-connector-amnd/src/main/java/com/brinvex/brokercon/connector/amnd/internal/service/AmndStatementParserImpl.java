@@ -88,6 +88,9 @@ public class AmndStatementParserImpl implements AmndStatementParser {
                     tradeType = TradeType.BUY;
                 } else if (desc1.startsWith("Investice")) {
                     line = lines.get(++i);
+                    if (line.isBlank()) {
+                        line = lines.get(++i);
+                    }
                     assertLine(i, line, "Bezhotovostný prevod");
                     desc2 = "";
                     tradeType = TradeType.BUY;
