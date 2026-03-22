@@ -45,12 +45,6 @@ public class DividendConstraints extends FinTransactionConstraints {
         return super.getAsset();
     }
 
-    @NotNull
-    @Override
-    public BigDecimal getGrossValue() {
-        return super.getGrossValue();
-    }
-
     @NegativeOrZero
     @Override
     public BigDecimal getFee() {

@@ -357,6 +357,35 @@ class FiobPtfActivityOfflineTest extends FiobBaseTest {
 
     }
 
+    @EnabledIf("account1IsNotNull")
+    @Test
+    void ptfProgress9_taxUnknown() {
+        assert account1 != null;
+
+        String dmsWorkspace = "fiob-dms-stable-20260301";
+        TestContext testCtx = this.testCtx.withDmsWorkspace(dmsWorkspace);
+        FiobModule fiobModule = testCtx.get(FiobModule.class);
+        FiobPtfActivityProvider ptfProgressProvider = fiobModule.ptfProgressProvider();
+
+        LocalDate fromDateIncl = parse("2019-01-01");
+        LocalDate toDateIncl = parse("2026-03-01");
+
+        PtfActivity ptfActivity = ptfProgressProvider.getPtfProgressOffline(account1, fromDateIncl, toDateIncl);
+        for (FinTransaction tran : ptfActivity.transactions().reversed()) {
+            if (tran.type().equals(FinTransactionType.DIVIDEND)) {
+                if (tran.asset().symbol().equals("ANL") && tran.asset().country().equals(Country.DE)) {
+                    assertNull(tran.tax());
+                    assertNull(tran.grossValue());
+                }
+            }
+        }
+
+        ValidatorFacade validator = testCtx.validator();
+        validator.validateAndThrow(ptfActivity.transactions().reversed(), FinTransactionConstraints::of);
+
+
+    }
+
 
 }
 

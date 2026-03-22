@@ -22,14 +22,6 @@ public class TransformationConstraints extends FinTransactionConstraints {
 
     @Min(0)
     @Max(0)
-    @NotNull
-    @Override
-    public BigDecimal getTax() {
-        return super.getTax();
-    }
-
-    @Min(0)
-    @Max(0)
     @Override
     public BigDecimal getFee() {
         return super.getFee();

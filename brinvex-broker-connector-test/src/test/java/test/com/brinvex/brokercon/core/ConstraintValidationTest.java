@@ -27,13 +27,13 @@ public class ConstraintValidationTest extends CoreBaseTest {
         {
             FinTransaction finTran = finTranBldr.build();
             Set<ConstraintViolation<FinTransactionConstraints>> violations = validator.validate(FinTransactionConstraints.of(finTran));
-            assertEquals(7, violations.size(), "%s, %s".formatted(violations, finTran));
+            assertEquals(6, violations.size(), "%s, %s".formatted(violations, finTran));
         }
         finTranBldr.date(LocalDate.now());
         {
             FinTransaction finTran = finTranBldr.build();
             Set<ConstraintViolation<FinTransactionConstraints>> violations = validator.validate(FinTransactionConstraints.of(finTran));
-            assertEquals(6, violations.size(), "%s, %s".formatted(violations, finTran));
+            assertEquals(5, violations.size(), "%s, %s".formatted(violations, finTran));
         }
         finTranBldr.netValue(BigDecimal.TEN);
         finTranBldr.grossValue(BigDecimal.TEN);

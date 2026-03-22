@@ -117,12 +117,14 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) > 0);
                 Assert.notNull(tranBuilder.fee());
                 Assert.zero(tranBuilder.fee());
+                tranBuilder.tax(ZERO);
             } else if (extraType == FiobTradingTransactionType.WITHDRAWAL) {
                 Assert.isNull(symbol);
                 Assert.isNull(tranBuilder.price());
                 Assert.isTrue(tranBuilder.qty().compareTo(ZERO) == 0);
                 Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) < 0);
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
+                tranBuilder.tax(ZERO);
                 if (FiobTradingTransactionType.FEE.equals(nextExtraType) && "Poplatek za převod peněz".equals(nextTranBuilder.externalDetail())) {
                     Assert.notNull(nextTranBuilder.fee());
                     Assert.notNull(nextTranBuilder.grossValue());
@@ -143,6 +145,7 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.tax() == null || tranBuilder.tax().compareTo(ZERO) == 0);
                 tranBuilder.netValue(tranBuilder.grossValue());
                 tranBuilder.grossValue(tranBuilder.netValue().subtract(tranBuilder.fee()));
+                tranBuilder.tax(ZERO);
             } else if (extraType == FiobTradingTransactionType.SELL) {
                 Assert.notNull(country);
                 Assert.notNull(symbol);
@@ -154,6 +157,7 @@ public class FiobTradingTransactionMapper {
                 tranBuilder.qty(tranBuilder.qty().negate());
                 tranBuilder.netValue(tranBuilder.grossValue());
                 tranBuilder.grossValue(tranBuilder.netValue().subtract(tranBuilder.fee()));
+                tranBuilder.tax(ZERO);
             } else if (extraType == FiobTradingTransactionType.FX_BUY) {
                 Assert.notNull(symbol);
                 Assert.isTrue(tranBuilder.price().compareTo(ZERO) > 0);
@@ -162,6 +166,7 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) < 0);
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
                 tranBuilder.asset(Asset.builder().type(InstrumentType.CASH).symbol(symbol).build());
+                tranBuilder.tax(ZERO);
             } else if (extraType == FiobTradingTransactionType.FX_SELL) {
                 Assert.notNull(symbol);
                 Assert.isTrue(tranBuilder.price().compareTo(ZERO) > 0);
@@ -171,6 +176,7 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
                 tranBuilder.asset(Asset.builder().type(InstrumentType.CASH).symbol(symbol).build());
                 tranBuilder.qty(tranBuilder.qty().negate());
+                tranBuilder.tax(ZERO);
             } else if (extraType == FiobTradingTransactionType.CASH_DIVIDEND) {
                 Assert.notNull(symbol);
                 Assert.notNull(tranBuilder.ccy());
@@ -274,7 +280,6 @@ public class FiobTradingTransactionMapper {
 
                     rawTransToProcess.removeFirst();
                 } else {
-                    tranBuilder.tax(ZERO);
                     tranBuilder.qty(ZERO);
                     tranBuilder.netValue(tranBuilder.grossValue());
                     tranBuilder.price(null);
@@ -303,6 +308,7 @@ public class FiobTradingTransactionMapper {
                 tranBuilder.grossValue(ZERO);
                 tranBuilder.netValue(netValue);
                 tranBuilder.fee(netValue);
+                tranBuilder.tax(ZERO);
                 tranBuilder.price(null);
             } else if (extraType == FiobTradingTransactionType.RECLAMATION) {
                 Assert.isNull(symbol);
@@ -326,9 +332,9 @@ public class FiobTradingTransactionMapper {
                 Assert.isTrue(tranBuilder.grossValue().compareTo(ZERO) == 0);
                 Assert.isTrue(tranBuilder.netValue().compareTo(ZERO) == 0);
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
-                Assert.isTrue(nextTranBuilder.price() != null && nextTranBuilder.price().compareTo(ZERO) == 0);
-                Assert.isTrue(nextTranBuilder.grossValue() != null && nextTranBuilder.grossValue().compareTo(ZERO) == 0);
-                Assert.isTrue(nextTranBuilder.fee() != null && nextTranBuilder.fee().compareTo(ZERO) == 0);
+                Assert.isTrue(nextTranBuilder.price().compareTo(ZERO) == 0);
+                Assert.isTrue(nextTranBuilder.grossValue().compareTo(ZERO) == 0);
+                Assert.isTrue(nextTranBuilder.fee().compareTo(ZERO) == 0);
 
                 Assert.isNull(tranBuilder.ccy());
                 Assert.isNull(nextTranBuilder.ccy());
@@ -345,6 +351,7 @@ public class FiobTradingTransactionMapper {
                     tranBuilder.ccy(countryCcy);
                     tranBuilder.qty(tranBuilder.qty().negate());
                     tranBuilder.price(null);
+                    tranBuilder.tax(ZERO);
                 }
                 {
                     Assert.isTrue(TradingTransactionDirection.BUY.equals(nextRawTran.direction()));
@@ -409,6 +416,7 @@ public class FiobTradingTransactionMapper {
 
                     tranBuilder.grossValue(tranBuilder.qty());
                     tranBuilder.netValue(tranBuilder.grossValue());
+                    tranBuilder.tax(ZERO);
                     tranBuilder.qty(nextTranBuilder.qty().negate());
                     tranBuilder.price(null);
                 } else {
@@ -420,6 +428,7 @@ public class FiobTradingTransactionMapper {
                     tranBuilder.ccy(detectCurrency(country));
                     tranBuilder.grossValue(ZERO);
                     tranBuilder.netValue(ZERO);
+                    tranBuilder.tax(ZERO);
                     tranBuilder.qty(tranBuilder.qty().negate());
                     tranBuilder.price(null);
                 }
@@ -441,6 +450,8 @@ public class FiobTradingTransactionMapper {
                 {
                     tranBuilder.ccy(countryCcy);
                     tranBuilder.qty(ZERO);
+                    tranBuilder.price(null);
+                    tranBuilder.tax(ZERO);
                 }
                 {
                     FinTransactionBuilder tranBuilder2 = FinTransaction.builder();
@@ -486,6 +497,7 @@ public class FiobTradingTransactionMapper {
                     tranBuilder.asset(Asset.builder().country(country).symbol(nextSymbol).type(detectInstrumentType(country, nextSymbol)).build());
                     tranBuilder.qty(Objects.requireNonNull(nextTranBuilder.qty()).negate());
                     tranBuilder.price(null);
+                    tranBuilder.tax(ZERO);
                 }
                 {
                     FinTransactionBuilder tranBuilder2 = FinTransaction.builder();
@@ -524,6 +536,7 @@ public class FiobTradingTransactionMapper {
 
                 {
                     tranBuilder.qty(ZERO);
+                    tranBuilder.price(null);
                 }
                 {
                     FinTransactionBuilder tranBuilder2 = FinTransaction.builder();
@@ -538,7 +551,6 @@ public class FiobTradingTransactionMapper {
                     tranBuilder2.asset(Asset.builder().country(country).symbol(symbol).type(detectInstrumentType(country, symbol)).build());
                     tranBuilder2.grossValue(tranBuilder.grossValue().negate());
                     tranBuilder2.netValue(tranBuilder.grossValue().negate());
-                    tranBuilder2.tax(ZERO);
                     groupTrans.add(tranBuilder2);
                 }
                 rawTransToProcess.removeFirst();
@@ -550,6 +562,7 @@ public class FiobTradingTransactionMapper {
                 Assert.equal(tranBuilder.grossValue(), tranBuilder.qty());
                 Assert.isTrue(tranBuilder.fee().compareTo(ZERO) == 0);
 
+                tranBuilder.price(null);
                 tranBuilder.qty(ZERO);
 
             } else if (extraType == FiobTradingTransactionType.SPLIT) {
@@ -575,6 +588,7 @@ public class FiobTradingTransactionMapper {
                 tranBuilder.price(null);
                 tranBuilder.grossValue(ZERO);
                 tranBuilder.netValue(ZERO);
+                tranBuilder.tax(ZERO);
             } else {
                 throw new IllegalStateException("Unexpected: %s".formatted(rawTran));
             }
@@ -596,6 +610,10 @@ public class FiobTradingTransactionMapper {
                 memberTranBuilder.groupId(groupId);
                 memberTranBuilder.asset(asset);
 
+                if (memberTranBuilder.tax() == null) {
+                    memberTranBuilder.grossValue(null);
+                }
+
                 resultTrans.add(memberTranBuilder.build());
 
                 if (asset != null && asset.country() != null && asset.symbol() != null) {
@@ -611,10 +629,14 @@ public class FiobTradingTransactionMapper {
             tranBuilder.ccy(detectCcy(rawTran.rawCcy()));
             tranBuilder.price(rawTran.price());
             tranBuilder.qty(rawTran.shares());
-            tranBuilder.grossValue(mapGrossValue(rawTran, tranBuilder.ccy()));
-            tranBuilder.fee(mapFee(rawTran, tranBuilder.ccy()));
-            tranBuilder.tax(ZERO);
-            tranBuilder.reconcileNetValue();
+
+            BigDecimal grossValue = mapGrossValue(rawTran, tranBuilder.ccy());
+            BigDecimal fee = mapFee(rawTran, tranBuilder.ccy());
+
+            tranBuilder.grossValue(grossValue);
+            tranBuilder.fee(fee);
+            tranBuilder.tax(null);
+            tranBuilder.netValue(grossValue.add(fee));
             tranBuilder.settleDate(rawTran.settleDate());
             tranBuilder.externalDetail(rawTran.text());
             tranBuilder.externalType(extraType.name());

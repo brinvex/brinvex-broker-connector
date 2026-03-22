@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.math.BigDecimal.ZERO;
+import static java.util.Objects.requireNonNullElse;
 
 public class FiobSavingTransactionMapper {
 
@@ -39,7 +40,7 @@ public class FiobSavingTransactionMapper {
                         if (FinTransactionType.TAX.equals(nextTranType) && "Odvod daně z úroků".equals(nextRawType)) {
                             Assert.equal(newTran.ccy(), nextRawTran.ccy());
                             newTran.tax(nextRawTran.volume());
-                            newTran.reconcileNetValue();
+                            newTran.netValue(requireNonNullElse(newTran.grossValue(), ZERO).add(requireNonNullElse(newTran.tax(), ZERO)));
                             i++;
                         }
                     }

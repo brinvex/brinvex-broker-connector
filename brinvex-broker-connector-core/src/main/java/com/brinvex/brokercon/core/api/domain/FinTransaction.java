@@ -6,9 +6,6 @@ import com.brinvex.fintypes.enu.FinTransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import static java.math.BigDecimal.ZERO;
-import static java.util.Objects.requireNonNullElse;
-
 public record FinTransaction(
         FinTransactionType type,
         LocalDate date,
@@ -75,16 +72,6 @@ public record FinTransaction(
                     this.externalType,
                     this.externalDetail
             );
-        }
-
-        public FinTransactionBuilder reconcileNetValue() {
-            netValue = requireNonNullElse(grossValue, ZERO).add(requireNonNullElse(fee, ZERO)).add(requireNonNullElse(tax, ZERO));
-            return this;
-        }
-
-        public FinTransactionBuilder reconcileGrossValue() {
-            grossValue = requireNonNullElse(netValue, ZERO).subtract(requireNonNullElse(fee, ZERO)).subtract(requireNonNullElse(tax, ZERO));
-            return this;
         }
 
         public FinTransactionType type() {

@@ -84,7 +84,6 @@ public abstract class FinTransactionConstraints implements Validatable {
         return asset == null ? null : AssetConstraints.of(asset);
     }
 
-    @NotNull
     public BigDecimal getGrossValue() {
         return finTransaction.grossValue();
     }
@@ -150,6 +149,19 @@ public abstract class FinTransactionConstraints implements Validatable {
     public boolean isCcyNotNullIfGrossValueIsNotZero() {
         BigDecimal grossValue = getGrossValue();
         return grossValue == null || grossValue.compareTo(BigDecimal.ZERO) == 0 || getCcy() != null;
+    }
+
+    @AssertTrue
+    public boolean isGrossValueNullWhenTaxIsNull() {
+        BigDecimal tax = getTax();
+        BigDecimal grossValue = getGrossValue();
+        return (tax == null && grossValue == null) || (tax != null && grossValue != null);
+    }
+
+    @AssertTrue
+    public boolean isPriceNullIfQtyIsZero() {
+        BigDecimal qty = getQty();
+        return (qty != null && qty.compareTo(BigDecimal.ZERO) != 0) || getPrice() == null;
     }
 
     public boolean isNetValueNotZero() {
