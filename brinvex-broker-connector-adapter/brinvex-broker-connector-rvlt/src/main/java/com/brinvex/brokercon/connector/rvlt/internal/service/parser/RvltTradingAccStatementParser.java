@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import static com.brinvex.brokercon.connector.rvlt.internal.service.parser.RvltParsingUtil.parseDecimal;
 import static com.brinvex.brokercon.connector.rvlt.internal.service.parser.RvltParsingUtil.parseMoney;
 import static com.brinvex.java.StringUtil.stripToEmpty;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
 
 @SuppressWarnings("DuplicatedCode")
@@ -41,7 +42,7 @@ class RvltTradingAccStatementParser {
         private static final Pattern ACC_SUMMARY_HEADER_PATTERN = Pattern.compile(
                 "Starting\\s+Ending");
         private static final Pattern ACC_SUMMARY_STOCKS_VALUE_PATTERN = Pattern.compile(
-                "Stocks\\s+value\\s+(?<startValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)\\s+(?<endValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)");
+                "((Stocks)|(Positions))\\s+Value\\s+(?<startValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)\\s+(?<endValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)", CASE_INSENSITIVE);
         private static final Pattern ACC_SUMMARY_CASH_VALUE_PATTERN = Pattern.compile(
                 "Cash\\s+value\\s*\\*?\\s+(?<startValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)\\s+(?<endValue>-?(US)?\\$(\\d+,)*\\d+(\\.\\d+)?)");
         private static final Pattern ACC_SUMMARY_TOTAL_VALUE_PATTERN = Pattern.compile(
